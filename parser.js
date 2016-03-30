@@ -88,7 +88,7 @@ module.exports = (function() {
         		return {
         			type: 'fndef',
         			name: name.join(''),
-        			params: params && params.length === 3 ? params[1].join('').split(',') : null
+        			params: normalizeParams(params)
         		};
         	},
         peg$c35 = "fn:",
@@ -97,13 +97,13 @@ module.exports = (function() {
         		return {
         			type: 'fnref',
         			name: name.join(''),
-        			params: params && params.length === 3 ? params[1].join('').split(',') : null
+        			params: normalizeParams(params)
         		};
         	},
         peg$c38 = function(params) {
         		return {
         			type: 'arrowfn',
-        			params: params && params.length === 3 ? params[1].join('').split(',') : null
+        			params: normalizeParams(params)
         		};
         	},
         peg$c39 = "/",
@@ -137,7 +137,7 @@ module.exports = (function() {
         			type: 'instancemethod',
         			instance: instance.join(''),
         			method: method.join(''),
-        			params: params && params.length === 3 ? params[1].join('').split(',') : null
+        			params: normalizeParams(params)
         		};
         	},
         peg$c56 = "var",
@@ -1412,6 +1412,13 @@ module.exports = (function() {
 
       return s0;
     }
+
+
+    	function normalizeParams(params) {
+    		return params && params.length === 3 ?
+    			params[1].join('').replace(/\s/g, '').split(',') : null;
+    	}
+
 
     peg$result = peg$startRuleFunction();
 

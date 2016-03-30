@@ -1,3 +1,10 @@
+{
+	function normalizeParams(params) {
+		return params && params.length === 3 ?
+			params[1].join('').replace(/\s/g, '').split(',') : null;
+	}
+}
+
 start
 	= space sels:selectors space { return sels.length === 1 ? sels[0] : { type: 'groups', selectors: sels }; }
 	/ space { return void 0; }
@@ -44,7 +51,7 @@ functionDef
 		return {
 			type: 'fndef',
 			name: name.join(''),
-			params: params && params.length === 3 ? params[1].join('').split(',') : null
+			params: normalizeParams(params)
 		};
 	}
 
@@ -53,7 +60,7 @@ functionRef
 		return {
 			type: 'fnref',
 			name: name.join(''),
-			params: params && params.length === 3 ? params[1].join('').split(',') : null
+			params: normalizeParams(params)
 		};
 	}
 
@@ -61,7 +68,7 @@ arrowFunction
 	= "(" params:parameters* ")" {
 		return {
 			type: 'arrowfn',
-			params: params && params.length === 3 ? params[1].join('').split(',') : null
+			params: normalizeParams(params)
 		};
 	}
 
@@ -87,7 +94,7 @@ instanceMethod
 			type: 'instancemethod',
 			instance: instance.join(''),
 			method: method.join(''),
-			params: params && params.length === 3 ? params[1].join('').split(',') : null
+			params: normalizeParams(params)
 		};
 	}
 
