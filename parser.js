@@ -55,7 +55,7 @@ module.exports = (function() {
         peg$c16 = ",",
         peg$c17 = { type: "literal", value: ",", description: "\",\"" },
         peg$c18 = function(sel, groups) {
-        		return [sel].concat(groups.map(function (group) { return group[3]}));
+        		return [sel].concat(groups.map(function (group) { return group[3] }));
         	},
         peg$c19 = "!",
         peg$c20 = { type: "literal", value: "!", description: "\"!\"" },

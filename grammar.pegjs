@@ -13,11 +13,11 @@ combinator
 
 selectors
 	= sel:selector groups:(space "," space selector)* {
-		return [sel].concat(groups.map(function (group) { return group[3]}));
+		return [sel].concat(groups.map(function (group) { return group[3] }));
 	}
 
 selector
-	= inverse:"!"? type:selectorType ops:(combinator inverse:"!"? selectorType)* {
+	= inverse:"!"? type:selectorType ops:(combinator "!"? selectorType)* {
 		if (inverse) {
 			type.inverse = true;
 		}
