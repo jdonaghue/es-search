@@ -6,11 +6,11 @@ space
 	= " "*
 
 combinator
-	= space ">" space { return 'descendant' }
+	= space ">+" space { return 'immediateSiblingRight'; }
+	/ space ">~" space { return 'immediateSiblingLeft'; }
+	/ space ">" space { return 'descendant' }
 	/ space "+" space { return 'siblingRight'; }
 	/ space "~" space { return 'siblingLeft'; }
-	/ space ">+" space { return 'immediateSiblingRight'; }
-	/ space ">~" space { return 'immediateSiblingLeft'; }
 
 selectors
 	= sel:selector groups:(space "," space selector)* {
@@ -24,17 +24,17 @@ selector
 		}
 
 		return rep.reduce(function (aggregate, rhs) {
-			if (rhs.length === 3) {
-				rhs[rhs.length - 1].inverse = true;
+			var result = { type: rhs[0], left: aggregate, right: rhs[2] };
+			if (rhs[1]) {
+				result.inverse = true;
 			}
-
-			return { type: rhs[0], left: aggregate, right: rhs[rhs.length - 1] };
+			return result;
 	    }, type);
 	}
 
 selectorType
 	= wildcard / functionDef / functionRef / arrowFunction / regularExp
-	/ stringLiteral / instanceMethod / variable
+	/ instanceMethod / variable / stringLiteral
 
 wildcard
 	= star:"*" { return { type: 'wildcard', value: star }; }
@@ -61,12 +61,12 @@ arrowFunction
 	= "(" params:parameters* ")" {
 		return {
 			type: 'arrowfn',
-			params: params ? params.split(',') : null
+			params: params && params.length === 3 ? params[1].join('').split(',') : null
 		};
 	}
 
 regularExp
-	= "/" reg:[a-zA-Z.*?><()\^$]+ "/" indicator:[igm]? {
+	= "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
 		return {
 			type: 'regexp',
 			value: new RegExp(reg.join(''), indicator)
@@ -97,11 +97,11 @@ variableType
 	/ "let"
 
 variable
-	= definitionType:(variableType ":")? name:identifier {
+	= definitionType:(variableType ":")? name:identifier+ {
 		return {
 			type: 'variable',
-			value: name,
-			definitionType: definitionType
+			value: name.join(''),
+			definitionType: definitionType ? definitionType.join('') : null
 		};
 	}
 

@@ -1,5 +1,5 @@
 var parser = require('./parser');
 
-var ast = parser.parse(process.argv[2]);
+var ast = parser.parse('!let:counter > /a+$/g >+ obj#blah(*, b, *) >+ fn:* + ()');
 
-console.dir(ast);
+console.log(JSON.stringify(ast, null, 4));
