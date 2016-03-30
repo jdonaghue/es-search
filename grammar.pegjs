@@ -17,11 +17,18 @@ selectors
 	}
 
 selector
-	= inverse:"!"? type:selectorType {
+	= inverse:"!"? type:selectorType ops:(combinator inverse:"!"? selectorType)* {
 		if (inverse) {
 			type.inverse = true;
 		}
-		return type;
+
+		return ops.reduce(function (aggregate, rhs) {
+			if (rhs.length === 3) {
+				rhs[rhs.length - 1].inverse = true;
+			}
+
+			return { type: rhs[0], left: aggregate, right: rhs[rhs.length - 1] };
+	    }, type);
 	}
 
 selectorType
