@@ -98,8 +98,8 @@ module.exports = (function() {
         	},
         peg$c36 = "/",
         peg$c37 = { type: "literal", value: "/", description: "\"/\"" },
-        peg$c38 = /^[a-zA-Z.*?><|()\^$]/,
-        peg$c39 = { type: "class", value: "[a-zA-Z.*?><|()\\^$]", description: "[a-zA-Z.*?><|()\\^$]" },
+        peg$c38 = /^[a-zA-Z.*?><()\^$]/,
+        peg$c39 = { type: "class", value: "[a-zA-Z.*?><()\\^$]", description: "[a-zA-Z.*?><()\\^$]" },
         peg$c40 = /^[igm]/,
         peg$c41 = { type: "class", value: "[igm]", description: "[igm]" },
         peg$c42 = function(reg, indicator) {
@@ -143,10 +143,10 @@ module.exports = (function() {
         			definitionType: definitionType
         		};
         	},
-        peg$c60 = /^[a-zA-Z"'*?, ]/,
-        peg$c61 = { type: "class", value: "[a-zA-Z\"'*?, ]", description: "[a-zA-Z\"'*?, ]" },
-        peg$c62 = /^[a-z|A-Z$]/,
-        peg$c63 = { type: "class", value: "[a-z|A-Z$]", description: "[a-z|A-Z$]" },
+        peg$c60 = /^[a-zA-Z"'*?,= ]/,
+        peg$c61 = { type: "class", value: "[a-zA-Z\"'*?,= ]", description: "[a-zA-Z\"'*?,= ]" },
+        peg$c62 = /^[a-zA-Z$]/,
+        peg$c63 = { type: "class", value: "[a-zA-Z$]", description: "[a-zA-Z$]" },
 
         peg$currPos          = 0,
         peg$savedPos         = 0,

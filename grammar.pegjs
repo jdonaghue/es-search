@@ -58,7 +58,7 @@ arrowFunction
 	}
 
 regularExp
-	= ("/" reg:[a-zA-Z.*?><|()\^$]+ "/" indicator:[igm]?) {
+	= ("/" reg:[a-zA-Z.*?><()\^$]+ "/" indicator:[igm]?) {
 		return {
 			type: 'regexp',
 			value: new RegExp(reg.join(''), indicator)
@@ -66,7 +66,7 @@ regularExp
 	}
 
 stringLiteral
-	= ["']+ literal:[a-zA-Z.*?><|()\^$]* ["'']+ {
+	= ["']+ literal:[a-zA-Z.*?><()\^$]* ["'']+ {
 		return {
 			type: 'string',
 			value: literal ? literal.join('') : null
@@ -98,7 +98,7 @@ variable
 	}
 
 parameters
-	= [a-zA-Z"'*?, ]
+	= [a-zA-Z"'*?,= ]
 
 identifier
-	= [a-z|A-Z$]
+	= [a-zA-Z$]
