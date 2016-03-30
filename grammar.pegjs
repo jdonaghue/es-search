@@ -73,18 +73,18 @@ arrowFunction
 	}
 
 regularExp
-	= "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
+	= "re:" "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
 		return {
 			type: 'regexp',
-			value: new RegExp(reg.join(''), indicator)
+			value: '/' + reg.join('') + '/' + (indicator || '')
 		};
 	}
 
 stringLiteral
-	= ["']+ literal:[a-zA-Z.*?><|()\^$\\;:-_=+*&%$#@!`~\/]* ["'']+ {
+	= "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
 		return {
 			type: 'string',
-			value: literal
+			value: new RegExp(reg.join(''), indicator)
 		};
 	}
 
