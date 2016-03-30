@@ -1,0 +1,18 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "James Donaghue",
+  "license": "ISC",
+  "dependencies": {
+    "acorn": "^3.0.4"
+  },
+  "devDependencies": {
+    "pegjs": "^0.9.0"
+  }
+}
