@@ -66,7 +66,7 @@ regularExp
 	}
 
 stringLiteral
-	= ["']+ literal:[a-zA-Z.*?><()\^$]* ["'']+ {
+	= ["']+ literal:[a-zA-Z.*?><|()\^$\\;:-_=+*&%$#@!`~\/]* ["'']+ {
 		return {
 			type: 'string',
 			value: literal ? literal.join('') : null
