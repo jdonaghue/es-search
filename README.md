@@ -62,7 +62,7 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 // TODO: define this
 
 // combinators
-fn:add /test/g  // the space is the combinator - means is a descendant of
+fn:add > /test/g  // the space is the combinator - means is a child of
 fn:add + /test/g // the '+' is the combinator - means following sibling
 fn:add ~ /test/g // the '~' is the combinator - means preceding sibling
 fn:add >+ /test/g // immediately following sibling

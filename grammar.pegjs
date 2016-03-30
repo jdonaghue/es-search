@@ -6,7 +6,8 @@ space
 	= " "*
 
 combinator
-	= space "+" space { return 'siblingRight'; }
+	= space ">" space { return 'descendant' }
+	/ space "+" space { return 'siblingRight'; }
 	/ space "~" space { return 'siblingLeft'; }
 	/ space ">+" space { return 'immediateSiblingRight'; }
 	/ space ">~" space { return 'immediateSiblingLeft'; }
@@ -17,12 +18,12 @@ selectors
 	}
 
 selector
-	= inverse:"!"? type:selectorType ops:(combinator "!"? selectorType)* {
+	= inverse:"!"? type:selectorType rep:(combinator "!"? selectorType)* {
 		if (inverse) {
 			type.inverse = true;
 		}
 
-		return ops.reduce(function (aggregate, rhs) {
+		return rep.reduce(function (aggregate, rhs) {
 			if (rhs.length === 3) {
 				rhs[rhs.length - 1].inverse = true;
 			}
@@ -32,27 +33,27 @@ selector
 	}
 
 selectorType
-	= wildcard / variable / functionDef / functionRef / arrowFunction / regularExp
-	/ stringLiteral / instanceMethod
+	= wildcard / functionDef / functionRef / arrowFunction / regularExp
+	/ stringLiteral / instanceMethod / variable
 
 wildcard
 	= star:"*" { return { type: 'wildcard', value: star }; }
 
 functionDef
-	= "fndef:" name:identifier? ("(" params:parameters* ")")? {
+	= "fndef:" name:identifier+ params:("(" parameters* ")")? {
 		return {
 			type: 'fndef',
-			name: name ? name.join('') : null,
-			params: params ? params.join('').split(',') : null
+			name: name.join(''),
+			params: params && params.length === 3 ? params[1].join('').split(',') : null
 		};
 	}
 
 functionRef
-	= "fn:" name:identifier? ("(" params:parameters* ")")? {
+	= "fn:" name:identifier+ params:("(" parameters* ")")? {
 		return {
 			type: 'fnref',
-			name: name ? name.join('') : null,
-			params: params ? params.join('').split(',') : null
+			name: name.join(''),
+			params: params && params.length === 3 ? params[1].join('').split(',') : null
 		};
 	}
 
@@ -60,12 +61,12 @@ arrowFunction
 	= "(" params:parameters* ")" {
 		return {
 			type: 'arrowfn',
-			params: params ? params.join('').split(',') : null
+			params: params ? params.split(',') : null
 		};
 	}
 
 regularExp
-	= ("/" reg:[a-zA-Z.*?><()\^$]+ "/" indicator:[igm]?) {
+	= "/" reg:[a-zA-Z.*?><()\^$]+ "/" indicator:[igm]? {
 		return {
 			type: 'regexp',
 			value: new RegExp(reg.join(''), indicator)
@@ -76,17 +77,17 @@ stringLiteral
 	= ["']+ literal:[a-zA-Z.*?><|()\^$\\;:-_=+*&%$#@!`~\/]* ["'']+ {
 		return {
 			type: 'string',
-			value: literal ? literal.join('') : null
+			value: literal
 		};
 	}
 
 instanceMethod
-	= instance:identifier+ [#]+ method:identifier ("(" params:parameters* ")")? {
+	= instance:identifier+ [#]+ method:identifier+ params:("(" parameters* ")")? {
 		return {
 			type: 'instancemethod',
 			instance: instance.join(''),
 			method: method.join(''),
-			params: params ? params.join('').split(',') : null
+			params: params && params.length === 3 ? params[1].join('').split(',') : null
 		};
 	}
 
@@ -99,7 +100,7 @@ variable
 	= definitionType:(variableType ":")? name:identifier {
 		return {
 			type: 'variable',
-			value: name.join(''),
+			value: name,
 			definitionType: definitionType
 		};
 	}
@@ -108,4 +109,4 @@ parameters
 	= [a-zA-Z"'*?,= ]
 
 identifier
-	= [a-zA-Z$]
+	= [a-zA-Z$*]
