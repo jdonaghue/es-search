@@ -3,6 +3,12 @@
 		return params && params.length === 3 ?
 			params[1].join('').replace(/\s/g, '').split(',') : null;
 	}
+	function findLastParent(parent) {
+		if (parent && parent.parent) {
+			return findLastParent(parent.parent);
+		}
+		return parent;
+	}
 }
 
 start
@@ -30,13 +36,28 @@ selector
 			type.inverse = true;
 		}
 
-		return rep.reduce(function (aggregate, rhs) {
-			var result = { type: rhs[0], left: aggregate, right: rhs[2] };
+		var state = {};
+		var additive = rep.reverse().reduce(function (top, rhs) {
 			if (rhs[1]) {
-				result.inverse = true;
+				rhs[2].inverse = true;
 			}
-			return result;
-	    }, type);
+			rhs[2].parent = { type: 'combinator', value: rhs[0] };
+
+			if (top === state) {
+				top = rhs[2];
+			}
+			else {
+				var lastParent = findLastParent(top);
+				lastParent.parent = rhs[2];
+			}
+
+			return top;
+		}, state);
+
+		if (additive) {
+			findLastParent(additive).parent = type;
+		}
+		return additive || type;
 	}
 
 selectorType
@@ -73,7 +94,7 @@ arrowFunction
 	}
 
 regularExp
-	= "re:" "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
+	= "re:/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
 		return {
 			type: 'regexp',
 			value: '/' + reg.join('') + '/' + (indicator || '')
