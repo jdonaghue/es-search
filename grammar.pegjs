@@ -37,7 +37,7 @@ selector
 		}
 
 		var state = {};
-		var additive = rep.reverse().reduce(function (top, rhs) {
+		var tree = rep.reverse().reduce(function (top, rhs) {
 			if (rhs[1]) {
 				rhs[2].inverse = true;
 			}
@@ -54,10 +54,10 @@ selector
 			return top;
 		}, state);
 
-		if (additive) {
-			findLastParent(additive).parent = type;
+		if (tree) {
+			findLastParent(tree).parent = type;
 		}
-		return additive || type;
+		return tree || type;
 	}
 
 selectorType
