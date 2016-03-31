@@ -36,14 +36,14 @@ selector
 			type.inverse = true;
 		}
 
-		var state = {};
+		var empty = {};
 		var tree = rep.reverse().reduce(function (top, rhs) {
 			if (rhs[1]) {
 				rhs[2].inverse = true;
 			}
 			rhs[2].parent = { type: 'combinator', value: rhs[0] };
 
-			if (top === state) {
+			if (top === empty) {
 				top = rhs[2];
 			}
 			else {
@@ -52,7 +52,7 @@ selector
 			}
 
 			return top;
-		}, state);
+		}, empty);
 
 		if (tree) {
 			findLastParent(tree).parent = type;

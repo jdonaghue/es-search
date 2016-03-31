@@ -67,14 +67,14 @@ module.exports = (function() {
         			type.inverse = true;
         		}
 
-        		var state = {};
-        		var additive = rep.reverse().reduce(function (top, rhs) {
+        		var empty = {};
+        		var tree = rep.reverse().reduce(function (top, rhs) {
         			if (rhs[1]) {
         				rhs[2].inverse = true;
         			}
         			rhs[2].parent = { type: 'combinator', value: rhs[0] };
 
-        			if (top === state) {
+        			if (top === empty) {
         				top = rhs[2];
         			}
         			else {
@@ -83,12 +83,12 @@ module.exports = (function() {
         			}
 
         			return top;
-        		}, state);
+        		}, empty);
 
-        		if (additive) {
-        			findLastParent(additive).parent = type;
+        		if (tree) {
+        			findLastParent(tree).parent = type;
         		}
-        		return additive || type;
+        		return tree || type;
         	},
         peg$c25 = "*",
         peg$c26 = { type: "literal", value: "*", description: "\"*\"" },
