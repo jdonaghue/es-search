@@ -11,7 +11,7 @@ counter=10
 var:counter
 const:counter
 let:counter
-*:counter // global
+window:counter // global
 // TODO: support destructuring
 
 // function definition search
@@ -19,7 +19,7 @@ fndef:add
 fndef:add(a, b, c)
 fndef:add(?, b)
 fndef:add(?, b='test')
-fndef:add(*, a, *)
+fndef:add(*a*)
 fndef:add
 fndef:* // any function name
 fndef:*(a, b, c) // any function name
@@ -32,14 +32,14 @@ fndef:(a, b, c) // anonymous
 // function invocation search
 fn:add
 fn:add(a, b, c)
-fn:add(a, b, *) // dont care about whats after 'b'
-fn:add(*, a, *) // somewhere there 'a' is passed in
+fn:add(a, b*) // dont care about whats after 'b'
+fn:add(*a*) // somewhere there 'a' is passed in
 
 // instance method invocation search
 instanceName#methodName
 instanceName#methodName(a, b, c)
 instanceName#methodName(?, b)
-instanceName#methodName(*, a, *)
+instanceName#methodName(*a*)
 
 // regular expression search
 re:/a/g // normal regular expression syntax prefixed by a 're:'

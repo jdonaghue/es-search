@@ -5,76 +5,100 @@ module.exports = function (results) {
 		if (result.verified.length) {
 			var source = result.source.split(/\r\n?|\n/g);
 			var report = [];
+			var sections = {};
+			var formats = {};
 			var previousEndLine = 0;
 
 			result.verified.sort(function (a, b) {
-				if (a.loc.start.line < b.loc.start.line) {
+				var aStart = a.loc.start.line;
+				var bStart = b.loc.start.line;
+				var aColStart = a.loc.start.column;
+				var bColStart = b.loc.start.column;
+
+				if (aStart < bStart) {
 					return -1;
 				}
-				else if (a.loc.start.line > b.loc.start.line) {
+				else if (aStart > bStart) {
+					return 1;
+				}
+				else if (aColStart < bColStart) {
+					return -1;
+				}
+				else if (aColStart > bColStart) {
 					return 1;
 				}
 				return 0;
 			});
 
-			result.verified.forEach(function (verified, index) {
-				var toPrint = {};
+			result.verified.forEach(function (verified) {
 				var start = verified.loc.start.line - 5;
+				var startColumn = verified.loc.start.column;
+				var endColumn = verified.loc.end.column;
 
-				if (start <= previousEndLine + 5 && report.length > 0) {
-					toPrint = report[report.length - 1];
-					start = previousEndLine + 1;
+				if (start <= previousEndLine + 5 && report.length) {
+					sections = report[report.length - 1];
 				}
 				else {
-					report.push(toPrint);
+					report.push(sections);
 				}
 				previousEndLine = verified.loc.end.line;
 
 				for (var i = start, end = verified.loc.end.line + 5; i <= end; i++) {
+					var prefix = 'line ' + i + ': ';
 					var line = source[i - 1];
 					if (line != null) {
 						if (i >= verified.loc.start.line && i <= verified.loc.end.line) {
-							var begining = null;
-							var ending = null;
-
-							if (i === verified.loc.start.line) {
-								begining = line.slice(0, verified.loc.start.column);
-							}
-							if (i === verified.loc.end.line) {
-								ending = line.slice(verified.loc.end.column);
-							}
-
-							if (begining && ending) {
-								var match = line.slice(verified.loc.start.column, verified.loc.end.column);
-								line = 'line ' + i + ': ' + begining.green + match.red + ending.green;
-							}
-							else if (begining) {
-								line = 'line ' + i + ': ' + begining.green + line.slice(verified.loc.start.column).red;
-							}
-							else if (ending) {
-								line = 'line ' + i + ': ' + line.slice(0, verified.loc.end.column).red + ending.green;
-							}
-							else {
-								line = 'line ' + i + ': ' + line.red;
-							}
-							line.formatted = true;
+							formats[i] = formats[i] || [];
+							formats[i].offset = prefix.length;
+							formats[i].push({
+								start: i === verified.loc.start.line ? startColumn : null,
+								end: i === verified.loc.end.line ? endColumn : null
+							});
 						}
-						else {
-							line = 'line ' + i + ': ' + line.green;
-						}
-						if (!toPrint[i] || !toPrint[i].formatted) {
-							toPrint[i] = line;
+						line = prefix + line;
+
+						if (!sections[i]) {
+							sections[i] = line;
 						}
 					}
 				}
 			});
 
-			report.forEach(function (toPrint) {
+			report.forEach(function (sections) {
 				console.log('\n==========================> '.yellow + result.sourceFile.yellow);
-				for (var lineNum in toPrint) {
-					console.log(toPrint[lineNum]);
+				for (var lineNum in sections) {
+					console.log(formatLine(sections[lineNum], formats[lineNum]));
 				}
 			});
 		}
 	});
 };
+
+function formatLine(line, formats) {
+	if (formats) {
+		var colors = [ 'white' ];
+		var parts = [];
+		var offset = formats.offset;
+		var lastStop = offset;
+		parts.push(line.slice(0, lastStop));
+
+		formats.forEach(function (format) {
+			parts.push(line.slice(lastStop, (format.start || 0) + offset));
+			colors.push('green');
+			parts.push(line.slice((format.start || 0) + offset, (format.end ? format.end + offset : line.length)));
+			colors.push('red');
+			lastStop = format.end ? format.end + offset : line.length;
+		});
+
+		if (lastStop && lastStop < line.length) {
+			parts.push(line.slice(lastStop));
+			colors.push('green');
+		}
+
+		parts.map(function (part, index) {
+			parts[index] = part[colors[index]];
+		});
+		line = parts.join('');
+	}
+	return line;
+}

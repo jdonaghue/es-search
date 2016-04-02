@@ -73,12 +73,12 @@ wildcard
 	= star:"*" { return { type: 'wildcard', estree: 'Node', value: star }; }
 
 functionDef
-	= "fndef:" name:identifier* params:("(" parameters* ")")? {
+	= "fndef:" name:identifier* params:("(" [.a-zA-Z$,?* ]* ")")? {
 		return {
 			type: 'fndef',
 			estree: 'Function',
 			name: name ? name.join('') : null,
-			params: normalizeParams(params)
+			params: params ? params[1].join('').replace(/\s+/, '').split(',') : null
 		};
 	}
 
@@ -102,20 +102,20 @@ arrowFunction
 	}
 
 regularExp
-	= "re:/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
+	= "re:/" reg:[a-zA-Z.*+?><()\^\\$!:]+ "/" indicator:[igm]? {
 		return {
-			type: 'regexp',
+			type: 'regex',
 			estree: 'ExpressionStatement',
 			value: '/' + reg.join('') + '/' + (indicator || '')
 		};
 	}
 
 stringLiteral
-	= "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
+	= "/" reg:[a-zA-Z.*+?><()\^\\$!:]+ "/" indicator:[igm]? {
 		return {
 			type: 'stringliteral',
-			estree: 'ExpressionStatement',
-			value: new RegExp(reg.join(''), indicator)
+			estree: 'Literal',
+			value: indicator ? new RegExp(reg.join(''), indicator) : new RegExp(reg.join(''))
 		};
 	}
 
@@ -131,7 +131,8 @@ instanceMethod
 	}
 
 variableDeclarationType
-	= "var"
+	= "window"
+	/ "var"
 	/ "const"
 	/ "let"
 
@@ -141,7 +142,7 @@ variable
 			type: 'variable',
 			estree: 'VariableDeclaration',
 			value: name.join(''),
-			definitionType: definitionType ? definitionType.join('') : null
+			definitionType: definitionType ? definitionType[0] : null
 		};
 	}
 
@@ -150,4 +151,4 @@ parameters
 	/ [a-zA-Z"'*?,=\[\]{}. ]
 
 identifier
-	= [a-zA-Z$*]
+	= [a-zA-Z$*0-9]

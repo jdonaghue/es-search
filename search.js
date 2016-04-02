@@ -23,22 +23,23 @@ function execute(query, fileAst) {
 
 	while (query) {
 		var options = {};
-		var verified = [];
+		var matched = [];
 
 		if (query.type === 'combinator') {
 			currentCombinator = query.value;
 		}
 		else {
 			options[query.estree] = function (node) {
-				if (verifier(node, query)) {
-					verified.push(node);
+				matches = verifier(node, query);
+				if (matches) {
+					matched = matched.concat(matches);
 				}
 			};
 		}
 
 		if (!currentCombinator) {
 			walk.simple(fileAst, options);
-			results = verified;
+			results = matched;
 		}
 		else if (query.type !== 'combinator') {
 			if (currentCombinator === 'descendant') {
@@ -47,7 +48,7 @@ function execute(query, fileAst) {
 				});
 			}
 			// TODO: handle sibling searches here
-			results = verified;
+			results = matched;
 		}
 		query = query.parent;
 	}

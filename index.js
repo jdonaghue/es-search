@@ -8,9 +8,9 @@ var pathUtil = require('path');
 var fileOrDirectory = process.argv[2];
 // example: '!let:counter > /a+$/g >+ obj#blah(*, b, *) >+ fn:* + (), agroup + re:/^blah/g');
 var query = process.argv.slice(3).join('');
+//console.log(query);
 var queryAst = parser.parse(query);
 var files = [];
-//console.log(query);
 //console.log(JSON.stringify(queryAst, null, 4));
 
 function readDirectory(directory) {
@@ -46,10 +46,14 @@ files.forEach(function (file) {
 			allowImportExportEverywhere: true,
 			ecmaVersion: 7
 		});
-		results.push({ verified: search(queryAst, fileAst), source: source, sourceFile: file });
+		results.push({
+			verified: search(queryAst, fileAst),
+			source: source,
+			sourceFile: file 
+		});
 	}
 	catch (ex) {
-		console.log('Error with file: ' + file, ex);
+		console.log('Error with file: ' + file, ex.stack);
 	}
 });
 consoleReporter(results);
