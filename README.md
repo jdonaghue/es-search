@@ -47,7 +47,7 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 // string literal search
 /a/g // normal regular expression syntax
 
-// conditional expression search
+// if statement search
 // TODO: define this
 
 // while loop search

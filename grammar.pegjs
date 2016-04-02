@@ -1,7 +1,9 @@
 {
 	function normalizeParams(params) {
 		return params && params.length === 3 ?
-			params[1].join('').replace(/\s/g, '').split(',') : null;
+			params[1].filter(function (param) {
+			 	return param !== ',' && param !== ' ';
+		 	}) : null;
 	}
 	function findLastParent(parent) {
 		if (parent && parent.parent) {
@@ -54,8 +56,11 @@ selector
 			return top;
 		}, empty);
 
-		if (tree) {
+		if (tree.type) {
 			findLastParent(tree).parent = type;
+		}
+		else {
+			tree = type;
 		}
 		return tree || type;
 	}
@@ -65,30 +70,33 @@ selectorType
 	/ instanceMethod / variable / stringLiteral
 
 wildcard
-	= star:"*" { return { type: 'wildcard', value: star }; }
+	= star:"*" { return { type: 'wildcard', estree: 'Node', value: star }; }
 
 functionDef
-	= "fndef:" name:identifier+ params:("(" parameters* ")")? {
+	= "fndef:" name:identifier* params:("(" parameters* ")")? {
 		return {
 			type: 'fndef',
-			name: name.join(''),
+			estree: 'Function',
+			name: name ? name.join('') : null,
 			params: normalizeParams(params)
 		};
 	}
 
 functionRef
-	= "fn:" name:identifier+ params:("(" parameters* ")")? {
+	= "fn:" name:identifier* params:("(" parameters* ")")? {
 		return {
 			type: 'fnref',
-			name: name.join(''),
+			estree: 'CallExpression',
+			name: name ? name.join('') : null,
 			params: normalizeParams(params)
 		};
 	}
 
 arrowFunction
-	= "(" params:parameters* ")" {
+	= params:("(" parameters* ")") {
 		return {
 			type: 'arrowfn',
+			estree: 'ArrowFunctionExpression',
 			params: normalizeParams(params)
 		};
 	}
@@ -97,6 +105,7 @@ regularExp
 	= "re:/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
 		return {
 			type: 'regexp',
+			estree: 'ExpressionStatement',
 			value: '/' + reg.join('') + '/' + (indicator || '')
 		};
 	}
@@ -104,7 +113,8 @@ regularExp
 stringLiteral
 	= "/" reg:[a-zA-Z.*+?><()\^$!]+ "/" indicator:[igm]? {
 		return {
-			type: 'string',
+			type: 'stringliteral',
+			estree: 'ExpressionStatement',
 			value: new RegExp(reg.join(''), indicator)
 		};
 	}
@@ -113,28 +123,31 @@ instanceMethod
 	= instance:identifier+ [#]+ method:identifier+ params:("(" parameters* ")")? {
 		return {
 			type: 'instancemethod',
+			estree: 'MemberExpression',
 			instance: instance.join(''),
 			method: method.join(''),
 			params: normalizeParams(params)
 		};
 	}
 
-variableType
+variableDeclarationType
 	= "var"
 	/ "const"
 	/ "let"
 
 variable
-	= definitionType:(variableType ":")? name:identifier+ {
+	= definitionType:(variableDeclarationType ":")? name:identifier+ {
 		return {
 			type: 'variable',
+			estree: 'VariableDeclaration',
 			value: name.join(''),
 			definitionType: definitionType ? definitionType.join('') : null
 		};
 	}
 
 parameters
-	= [a-zA-Z"'*?,= ]
+	= selectorType
+	/ [a-zA-Z"'*?,=\[\]{}. ]
 
 identifier
 	= [a-zA-Z$*]

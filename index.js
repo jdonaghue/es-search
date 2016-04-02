@@ -1,7 +1,7 @@
 var parser = require('./parser');
-var reporter = require('./reporter');
+var consoleReporter = require('./console');
 var search = require('./search');
-var acorn = require ('acorn');
+var acorn = require ('./node_modules/acorn/dist/acorn_loose');
 var fs = require('fs');
 var pathUtil = require('path');
 
@@ -10,6 +10,8 @@ var fileOrDirectory = process.argv[2];
 var query = process.argv.slice(3).join('');
 var queryAst = parser.parse(query);
 var files = [];
+//console.log(query);
+//console.log(JSON.stringify(queryAst, null, 4));
 
 function readDirectory(directory) {
 	var paths = fs.readdirSync(directory);
@@ -38,13 +40,16 @@ var results = [];
 files.forEach(function (file) {
 	var source = fs.readFileSync(file, 'utf8');
 	try {
-		var fileAst = acorn.parse(source, {
-			locations: true
+		var fileAst = acorn.parse_dammit(source, {
+			locations: true,
+			sourceFile: file,
+			allowImportExportEverywhere: true,
+			ecmaVersion: 7
 		});
-		results = results.concat(search(queryAst, fileAst));
+		results.push({ verified: search(queryAst, fileAst), source: source, sourceFile: file });
 	}
 	catch (ex) {
 		console.log('Error with file: ' + file, ex);
 	}
 });
-reporter(results);
+consoleReporter(results);
