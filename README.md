@@ -63,7 +63,9 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 // TODO: define this
 
 // combinators
+// Note all of the search right to left except for '<' which searches left to right
 fn:add > /test/g  // the '>' is the combinator - means is a descendant of
+fn:add < /test/g  // the '>' is the combinator - means is a ancestor of
 fn:add + /test/g // the '+' is the combinator - means following sibling
 fn:add ~ /test/g // the '~' is the combinator - means preceding sibling
 fn:add >+ /test/g // immediately following sibling

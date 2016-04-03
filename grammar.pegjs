@@ -24,6 +24,7 @@ combinator
 	= space ">+" space { return 'immediateSiblingRight'; }
 	/ space ">~" space { return 'immediateSiblingLeft'; }
 	/ space ">" space { return 'descendant' }
+	/ space "<" space { return 'ancestor' }
 	/ space "+" space { return 'siblingRight'; }
 	/ space "~" space { return 'siblingLeft'; }
 
@@ -70,7 +71,20 @@ selectorType
 	/ instanceMethod / variable / stringLiteral
 
 wildcard
-	= star:"*" { return { type: 'wildcard', estree: 'Node', value: star }; }
+	= star:"*" {
+		return {
+			type: 'wildcard', 
+			estree: [
+				'CallExpression',
+				'Expression',
+				'Function',
+				'Statement',
+				'VariableDeclarator',
+				'Property'
+			],
+			value: star
+		};
+	}
 
 functionDef
 	= "fndef:" name:identifier* params:("(" [.a-zA-Z$,?* ]* ")")? {

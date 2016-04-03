@@ -117,13 +117,19 @@ module.exports = function (sourceNode, queryNode) {
 						return node.id && logic.variable(node.id, queryNode.value);
 					});
 
-					return [ node ];
+					if (node) {
+						return [ node ];
+					}
 				}
 				else if (logic.variable(sourceNode, queryNode.value)) {
 					return [ sourceNode ];
 				}
 			}
 			break;
+		}
+
+		case 'wildcard': {
+			return [ sourceNode ];
 		}
 	}
 
@@ -234,3 +240,5 @@ var d = function (a, b) {
 }
 
 b.test('blah');
+
+test = 1;
