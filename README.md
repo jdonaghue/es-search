@@ -47,6 +47,11 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 // string literal search
 /a/g // normal regular expression syntax
 
+// literal search
+10
+true
+false
+
 // if statement search
 // TODO: define this
 
@@ -65,9 +70,9 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 // combinators
 // Note all of the search right to left except for '<' which searches left to right
 fn:add > /test/g  // the '>' is the combinator - means is a descendant of
-fn:add < /test/g  // the '>' is the combinator - means is a ancestor of
-fn:add + /test/g // the '+' is the combinator - means following sibling
-fn:add ~ /test/g // the '~' is the combinator - means preceding sibling
-fn:add >+ /test/g // immediately following sibling
-fn:add >~ /test/g // immediately preceding sibling
+// TODO: fn:add < /test/g  // the '>' is the combinator - means is a ancestor of
+// TODO: fn:add + /test/g // the '+' is the combinator - means following sibling
+// TODO: fn:add ~ /test/g // the '~' is the combinator - means preceding sibling
+// TODO: fn:add >+ /test/g // immediately following sibling
+// TODO: fn:add >~ /test/g // immediately preceding sibling
 ```
