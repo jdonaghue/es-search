@@ -5,6 +5,11 @@
 			 	return param !== ',' && param !== ' ';
 		 	}) : null;
 	}
+	function normalizeIdentifier(identifier) {
+		return identifier ? identifier.reverse().reduce(function (top, next) {
+			return (next[1] ? next.join('') : next[0]) + top
+		}, '') : null;
+	}
 	function findLastParent(parent) {
 		if (parent && parent.parent) {
 			return findLastParent(parent.parent);
@@ -68,7 +73,7 @@ selector
 
 selectorType
 	= wildcard / functionDef / functionRef / arrowFunction / regularExp
-	/ instanceMethod / variable / stringLiteral
+	/ instanceMethod / variable / stringLiteral / literal
 
 wildcard
 	= star:"*" {
@@ -91,7 +96,7 @@ functionDef
 		return {
 			type: 'fndef',
 			estree: [ 'Function' ],
-			name: name ? name.join('') : null,
+			name: normalizeIdentifier(name),
 			params: params ? params[1].join('').replace(/\s+/, '').split(',') : null
 		};
 	}
@@ -101,7 +106,7 @@ functionRef
 		return {
 			type: 'fnref',
 			estree: [ 'CallExpression' ],
-			name: name ? name.join('') : null,
+			name: normalizeIdentifier(name),
 			params: normalizeParams(params)
 		};
 	}
@@ -133,13 +138,27 @@ stringLiteral
 		};
 	}
 
+literals
+	= [0-9]+
+	/ "true"
+	/ "false"
+
+literal
+	= lit:literals {
+		return {
+			type: 'literal',
+			estree: [ 'Literal' ],
+			value: lit.join ? lit.join('') : lit
+		};
+	}
+
 instanceMethod
 	= instance:identifier+ [.] method:identifier+ params:("(" parameters* ")")? {
 		return {
-			type: 'instancemethod',
-			estree: [ 'CallExpression' ],
-			instance: instance.join(''),
-			method: method.join(''),
+			type: 'instancedereference',
+			estree: [ 'CallExpression', 'MemberExpression' ],
+			instance: normalizeIdentifier(instance),
+			methodOrProperty: normalizeIdentifier(method),
 			params: normalizeParams(params)
 		};
 	}
@@ -151,12 +170,13 @@ variableDeclarationType
 	/ "let"
 
 variable
-	= definitionType:(variableDeclarationType ":")? name:identifier+ {
+	= definitionType:(variableDeclarationType ":")? name:identifier+ assignment:("=" selectorType)? {
 		return {
 			type: 'variable',
-			estree: [ 'VariableDeclaration' ],
-			value: name.join(''),
-			definitionType: definitionType ? definitionType[0] : null
+			estree: [ 'VariableDeclaration', 'AssignmentExpression' ],
+			value: normalizeIdentifier(name),
+			definitionType: definitionType ? definitionType[0] : null,
+			assignment: assignment ? assignment[1] : null
 		};
 	}
 
@@ -165,4 +185,4 @@ parameters
 	/ [a-zA-Z"'*?,=\[\]{}. ]
 
 identifier
-	= [a-zA-Z$*0-9]
+	= [a-zA-Z$*_][0-9]?

@@ -51,7 +51,6 @@ module.exports = function (sourceNode, queryNode) {
 						return index === 0 ? '/' + arg.value + '/' : arg.value;
 					}).join('');
 
-					console.log(toTest);
 					if (logic.regex(toTest, queryNode.value)) {
 						return [ sourceNode ];
 					}
@@ -74,7 +73,6 @@ module.exports = function (sourceNode, queryNode) {
 						return index === 0 ? '/' + arg.value + '/' : arg.value;
 					}).join('');
 
-					console.log(toTest);
 					if (logic.regex(toTest, queryNode.value)) {
 						return [ sourceNode.init ];
 					}
@@ -95,11 +93,11 @@ module.exports = function (sourceNode, queryNode) {
 			break;
 		}
 
-		case 'instancemethod': {
+		case 'instancedereference': {
 			var searchNode = sourceNode.callee || sourceNode;
 			if (searchNode && searchNode.object && searchNode.property &&
 				(logic.identifier(searchNode.object.name, queryNode.instance)) &&
-				(logic.identifier(searchNode.property.name, queryNode.method)) &&
+				(logic.identifier(searchNode.property.name, queryNode.methodOrProperty)) &&
 				logic.parameters(sourceNode.arguments, queryNode.params)) {
 
 				return [ sourceNode ];
@@ -109,7 +107,7 @@ module.exports = function (sourceNode, queryNode) {
 
 		case 'variable': {
 			if (!queryNode.definitionType ||
-				(queryNode.definitionType === '*' && !sourceNode.kind) ||
+				(queryNode.definitionType === 'window' && !sourceNode.kind) ||
 				(queryNode.definitionType === sourceNode.kind)) {
 
 				if (sourceNode.declarations) {
@@ -118,11 +116,30 @@ module.exports = function (sourceNode, queryNode) {
 					});
 
 					if (node) {
-						return [ node ];
+						if (queryNode.assignment) {
+							if (node.init && module.exports(node.init, queryNode.assignment)) {
+								return [ sourceNode ];
+							}
+						}
+						else {
+							return [ node ];
+						}
 					}
 				}
-				else if (logic.variable(sourceNode, queryNode.value)) {
+				else if (sourceNode.type === 'Identifier' && logic.variable(sourceNode, queryNode.value)) {
 					return [ sourceNode ];
+				}
+				else if (sourceNode.type === 'AssignmentExpression') {
+					if (queryNode.assignment) {
+						if (sourceNode.left && logic.variable(sourceNode.left, queryNode.value)) {
+							if (module.exports(sourceNode.right, queryNode.assignment)) {
+								return [ sourceNode ];
+							}
+						}
+					}
+					else if (logic.variable(sourceNode.left, queryNode.value)) {
+						return [ sourceNode ];
+					}
 				}
 			}
 			break;
@@ -130,6 +147,12 @@ module.exports = function (sourceNode, queryNode) {
 
 		case 'wildcard': {
 			return [ sourceNode ];
+		}
+
+		case 'literal': {
+			if (logic.literal(sourceNode.value, queryNode.value)) {
+				return [ sourceNode ];
+			}
 		}
 	}
 
@@ -151,6 +174,10 @@ var logic = {
 
 	variable: function (toTest, tester) {
 		return toTest.type === 'Identifier' && tester === toTest.name;
+	},
+
+	literal: function (toTest, tester) {
+		return tester == toTest;
 	},
 
 	parameters: function (args, parameters) {
@@ -214,7 +241,7 @@ var logic = {
 				});
 			}
 		}
-		else if (!args) {
+		else if (parameters && !args) {
 			match = false;
 		}
 		return match;

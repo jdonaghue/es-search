@@ -3,7 +3,6 @@ var colors = require('colors');
 module.exports = function (results) {
 	results.forEach(function (result) {
 		if (result.verified.length) {
-			//console.log(JSON.stringify(result.verified, null, 4));
 			var source = result.source.split(/\r\n?|\n/g);
 			var report = [];
 			var sections = {};

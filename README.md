@@ -35,7 +35,7 @@ fn:add(a, b, c)
 fn:add(a, b, *) // dont care about whats after 'b'
 fn:add(*, a, *) // somewhere there 'a' is passed in
 
-// instance method invocation search
+// instance method invocation or property dereference
 instanceName.methodName
 instanceName.methodName(a, b, c)
 instanceName.methodName(?, b)
