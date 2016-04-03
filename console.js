@@ -3,6 +3,7 @@ var colors = require('colors');
 module.exports = function (results) {
 	results.forEach(function (result) {
 		if (result.verified.length) {
+			//console.log(JSON.stringify(result.verified, null, 4));
 			var source = result.source.split(/\r\n?|\n/g);
 			var report = [];
 			var sections = {};
@@ -99,6 +100,10 @@ function formatLine(line, formats) {
 			parts[index] = part[colors[index]];
 		});
 		line = parts.join('');
+	}
+	else {
+		var offset = line.indexOf(':') + 1;
+		line = line.slice(0, offset) + line.slice(offset).green;
 	}
 	return line;
 }

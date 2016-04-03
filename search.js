@@ -1,5 +1,5 @@
 var walk = require('./node_modules/acorn/dist/walk');
-var verifier = require('./verifier');
+var matcher = require('./matcher');
 
 module.exports = function (queryAst, fileAst) {
 	var results = [];
@@ -29,12 +29,14 @@ function execute(query, fileAst) {
 			currentCombinator = query.value;
 		}
 		else {
-			options[query.estree] = function (node) {
-				matches = verifier(node, query);
-				if (matches) {
-					matched = matched.concat(matches);
-				}
-			};
+			query.estree.forEach(function (estree) {
+				options[estree] = function (node) {
+					matches = matcher(node, query);
+					if (matches) {
+						matched = matched.concat(matches);
+					}
+				};
+			});
 		}
 
 		if (!currentCombinator) {

@@ -7,8 +7,10 @@ module.exports = function (sourceNode, queryNode) {
 
 	switch (queryNode.type) {
 		case 'fndef': {
-			if (sourceNode.id && sourceNode.id.type === 'Identifier' &&
-				logic.identifier(sourceNode.id.name, queryNode.name) &&
+			if (((sourceNode.id && sourceNode.id.type === 'Identifier' &&
+				logic.identifier(sourceNode.id.name, queryNode.name)) ||
+				(!sourceNode.id && !queryNode.name &&
+					sourceNode.type !== 'ArrowFunctionExpression')) &&
 				logic.parameters(sourceNode.params, queryNode.params)) {
 
 				return [ sourceNode ];
@@ -27,7 +29,11 @@ module.exports = function (sourceNode, queryNode) {
 		}
 
 		case 'arrowfn': {
+			if (sourceNode.type === 'ArrowFunctionExpression' &&
+				logic.parameters(sourceNode.params, queryNode.params)) {
 
+				return [ sourceNode ];
+			}
 			break;
 		}
 
@@ -41,12 +47,13 @@ module.exports = function (sourceNode, queryNode) {
 				}
 				else if (sourceNode.expression.type === 'NewExpression' &&
 					sourceNode.expression.callee.name === 'RegExp') {
-					var toTest = sourceNode.expression.callee.arguments.map(function (arg, index) {
+					var toTest = sourceNode.expression.arguments.map(function (arg, index) {
 						return index === 0 ? '/' + arg.value + '/' : arg.value;
 					}).join('');
 
+					console.log(toTest);
 					if (logic.regex(toTest, queryNode.value)) {
-						return [ sourceNode.expression ];
+						return [ sourceNode ];
 					}
 				}
 				else if (sourceNode.expression.type === 'CallExpression') {
@@ -58,6 +65,19 @@ module.exports = function (sourceNode, queryNode) {
 						}
 					});
 					return matched.length ? matched : null;
+				}
+			}
+			else if (sourceNode.init) {
+				if (sourceNode.init.type === 'NewExpression' &&
+					sourceNode.init.callee.name === 'RegExp') {
+					var toTest = sourceNode.init.arguments.map(function (arg, index) {
+						return index === 0 ? '/' + arg.value + '/' : arg.value;
+					}).join('');
+
+					console.log(toTest);
+					if (logic.regex(toTest, queryNode.value)) {
+						return [ sourceNode.init ];
+					}
 				}
 			}
 			else if (sourceNode.type === 'Literal' && sourceNode.regex) {
@@ -76,7 +96,14 @@ module.exports = function (sourceNode, queryNode) {
 		}
 
 		case 'instancemethod': {
+			var searchNode = sourceNode.callee || sourceNode;
+			if (searchNode && searchNode.object && searchNode.property &&
+				(logic.identifier(searchNode.object.name, queryNode.instance)) &&
+				(logic.identifier(searchNode.property.name, queryNode.method)) &&
+				logic.parameters(sourceNode.arguments, queryNode.params)) {
 
+				return [ sourceNode ];
+			}
 			break;
 		}
 
@@ -125,7 +152,7 @@ var logic = {
 			return parameter && (parameter === '*' || parameter.value === '*');
 		}
 		var match = true;
-		if (parameters) {
+		if (parameters && args) {
 			var wildcard = parameters.some(function (param) {
 				return isWildcard(param);
 			});
@@ -181,6 +208,9 @@ var logic = {
 				});
 			}
 		}
+		else if (!args) {
+			match = false;
+		}
 		return match;
 	}
 };
@@ -190,3 +220,17 @@ function a(reg, b) {
 }
 
 a(/test/g, /test/g, a);
+
+var b = new RegExp('test', 'g');
+
+new RegExp('test', 'g');
+
+var c = (a, b) => {
+	return 1;
+}
+
+var d = function (a, b) {
+	return 1;
+}
+
+b.test('blah');

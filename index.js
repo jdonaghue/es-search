@@ -49,11 +49,11 @@ files.forEach(function (file) {
 		results.push({
 			verified: search(queryAst, fileAst),
 			source: source,
-			sourceFile: file 
+			sourceFile: file
 		});
+		consoleReporter([ results[results.length - 1] ]);
 	}
 	catch (ex) {
 		console.log('Error with file: ' + file, ex.stack);
 	}
 });
-consoleReporter(results);

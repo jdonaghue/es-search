@@ -76,7 +76,7 @@ functionDef
 	= "fndef:" name:identifier* params:("(" [.a-zA-Z$,?* ]* ")")? {
 		return {
 			type: 'fndef',
-			estree: 'Function',
+			estree: [ 'Function' ],
 			name: name ? name.join('') : null,
 			params: params ? params[1].join('').replace(/\s+/, '').split(',') : null
 		};
@@ -86,7 +86,7 @@ functionRef
 	= "fn:" name:identifier* params:("(" parameters* ")")? {
 		return {
 			type: 'fnref',
-			estree: 'CallExpression',
+			estree: [ 'CallExpression' ],
 			name: name ? name.join('') : null,
 			params: normalizeParams(params)
 		};
@@ -96,7 +96,7 @@ arrowFunction
 	= params:("(" parameters* ")") {
 		return {
 			type: 'arrowfn',
-			estree: 'ArrowFunctionExpression',
+			estree: [ 'ArrowFunctionExpression' ],
 			params: normalizeParams(params)
 		};
 	}
@@ -105,25 +105,25 @@ regularExp
 	= "re:/" reg:[a-zA-Z.*+?><()\^\\$!:]+ "/" indicator:[igm]? {
 		return {
 			type: 'regex',
-			estree: 'ExpressionStatement',
+			estree: [ 'ExpressionStatement', 'VariableDeclarator' ],
 			value: '/' + reg.join('') + '/' + (indicator || '')
 		};
 	}
 
 stringLiteral
-	= "/" reg:[a-zA-Z.*+?><()\^\\$!:]+ "/" indicator:[igm]? {
+	= "/" reg:[a-zA-Z.*+?><()\^\\$!:_\-]+ "/" indicator:[igm]? {
 		return {
 			type: 'stringliteral',
-			estree: 'Literal',
+			estree: [ 'Literal' ],
 			value: indicator ? new RegExp(reg.join(''), indicator) : new RegExp(reg.join(''))
 		};
 	}
 
 instanceMethod
-	= instance:identifier+ [#]+ method:identifier+ params:("(" parameters* ")")? {
+	= instance:identifier+ [.] method:identifier+ params:("(" parameters* ")")? {
 		return {
 			type: 'instancemethod',
-			estree: 'MemberExpression',
+			estree: [ 'CallExpression' ],
 			instance: instance.join(''),
 			method: method.join(''),
 			params: normalizeParams(params)
@@ -140,7 +140,7 @@ variable
 	= definitionType:(variableDeclarationType ":")? name:identifier+ {
 		return {
 			type: 'variable',
-			estree: 'VariableDeclaration',
+			estree: [ 'VariableDeclaration' ],
 			value: name.join(''),
 			definitionType: definitionType ? definitionType[0] : null
 		};
