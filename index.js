@@ -11,7 +11,7 @@ var query = process.argv.slice(3).join('');
 //console.log(query);
 var queryAst = parser.parse(query);
 var files = [];
-//console.log(JSON.stringify(queryAst, null, 4));
+console.log(JSON.stringify(queryAst, null, 4));
 
 function readDirectory(directory) {
 	var paths = fs.readdirSync(directory);
@@ -46,8 +46,19 @@ files.forEach(function (file) {
 			allowImportExportEverywhere: true,
 			ecmaVersion: 7
 		});
+		var unique = [];
+		var lineNumbers = {};
+		var verified = search(queryAst, fileAst);
+		verified.forEach(function (node) {
+			var lineNumber = node.loc.start.line + ':' + node.loc.start.column + '-'
+				node.loc.end.line + ':' + node.loc.end.column;
+			if (!(lineNumber in lineNumbers)) {
+				unique.push(node);
+				lineNumbers[lineNumber] = true;
+			}
+		});
 		results.push({
-			verified: search(queryAst, fileAst),
+			verified: unique,
 			source: source,
 			sourceFile: file
 		});

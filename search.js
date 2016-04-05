@@ -24,23 +24,21 @@ function execute(query, fileAst) {
 
 	while (query) {
 		var options = {};
+		var parentNodes = [];
 
 		if (query.type === 'combinator') {
 			currentCombinator = query.value;
 		}
 		else {
 			query.estree.forEach(function (estree) {
-				options[estree] = function (contextNode, node) {
+				options[estree] = function (node) {
 					matches = matcher(node, query);
 					if (matches) {
 						if (inMatchingMode) {
 							results = results.concat(matches);
 						}
-					}
-					else if (!inMatchingMode) {
-						if (checkPosition(currentCombinator, node, contextNode)) {
-							var index = results.indexOf(contextNode);
-							results.splice(index, 1);
+						else {
+							parentNodes = parentNodes.concat(matches);
 						}
 					}
 				};
@@ -48,21 +46,20 @@ function execute(query, fileAst) {
 		}
 
 		if (!currentCombinator) {
-			var localOptions = {};
-			for (var estree in options) {
-				localOptions[estree] = options[estree].bind(null, null);
-			}
-			walk.simple(fileAst, localOptions);
+			walk.simple(fileAst, options);
 		}
 		else if (query.type !== 'combinator') {
 			inMatchingMode = false;
-			results.forEach(function (node, index) {
-				var localOptions = {};
-				for (var estree in options) {
-					localOptions[estree] = options[estree].bind(null, node);
-				}
-				walk.simple(fileAst, localOptions);
-			}, null, []);
+			walk.simple(fileAst, options);
+			var prunedList = [];
+			results.forEach(function (node) {
+				parentNodes.forEach(function (match) {
+					if (checkPosition(currentCombinator, match, node)) {
+						prunedList.push(node);
+					}
+				});
+			});
+			results = prunedList;
 		}
 		query = query.parent;
 	}
@@ -75,15 +72,20 @@ function checkPosition(combinator, node, contextNode) {
 }
 
 var walker = {
-	descendant: function (node, contextNode) {
+	descendant: function (rootNode, contextNode) {
 		var options = {}
 		var found = false;
+		options[rootNode.type] = function (node) {
+			if (node === contextNode) {
+				found = true;
+			}
+		}
 		options[contextNode.type] = function (node) {
 			if (node === contextNode) {
 				found = true;
 			}
 		}
-		walk.simple(node, options);
+		walk.simple(rootNode, options);
 		return found;
 	}
 };

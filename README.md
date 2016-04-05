@@ -52,13 +52,47 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 true
 false
 
+// conditional search
+cond:*  // any conditional expression
+cond:a==b
+cond:a===b
+cond:a
+cond:!a
+cond:a!=b
+cond:a!==b
+cond:a>b // all operators are supported
+cond:a&&b===c
+cond:(a&&b)||c // grouping
+cond:(a, b)  // arrow functions
+cond:fndef(a, b) // anonymous functions
+
+// expression search
+expr:i++
+expr:a+b
+expr:a*b
+expr:a*b/c
+expr:(a*b)/c
+
 // if statement search
-// TODO: define this
+if:*a // a condition that contains a variable named 'a'
+if:*re:/test/g 
+if:a==b // same as conditional search
 
 // while loop search
-// TODO: define this
+while:*a // a condition that contains a variable named 'a'
+while:*re:/test/g 
+while:a==b // same as conditional search
 
 // for loop search
+for:*;a;* // any for loop that contains a condition with a variable named 'a'
+for:*;cond:;* // only care about the condition
+for:variable;cond:;expr:
+
+// for in 
+forin:a
+forin:a>b // a in b
+
+// for of
 // TODO: define this
 
 // switch statement search

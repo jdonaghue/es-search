@@ -85,7 +85,9 @@ function formatLine(line, formats) {
 		formats.forEach(function (format) {
 			parts.push(line.slice(lastStop, (format.start || 0) + offset));
 			colors.push('green');
-			parts.push(line.slice((format.start || 0) + offset, (format.end ? format.end + offset : line.length)));
+			parts.push(line.slice(
+				(format.start || 0) + offset,
+				(format.end ? format.end + offset : line.length)));
 			colors.push('red');
 			lastStop = format.end ? format.end + offset : line.length;
 		});

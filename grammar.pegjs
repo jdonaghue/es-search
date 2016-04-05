@@ -5,11 +5,17 @@
 			 	return param !== ',' && param !== ' ';
 		 	}) : null;
 	}
+
 	function normalizeIdentifier(identifier) {
 		return identifier ? identifier.reverse().reduce(function (top, next) {
 			return (next[1] ? next.join('') : next[0]) + top
 		}, '') : null;
 	}
+
+	function normalizeRegExFlags(flags) {
+		return flags ? flags.join('') : null;
+	}
+
 	function findLastParent(parent) {
 		if (parent && parent.parent) {
 			return findLastParent(parent.parent);
@@ -22,16 +28,19 @@ start
 	= space sels:selectors space { return sels.length === 1 ? sels[0] : { type: 'groups', selectors: sels }; }
 	/ space { return void 0; }
 
+spaceReq
+	= " "
+
 space
 	= " "*
 
 combinator
-	= space ">+" space { return 'immediateSiblingRight'; }
-	/ space ">~" space { return 'immediateSiblingLeft'; }
-	/ space ">" space { return 'descendant' }
-	/ space "<" space { return 'ancestor' }
-	/ space "+" space { return 'siblingRight'; }
-	/ space "~" space { return 'siblingLeft'; }
+	= spaceReq ">+" spaceReq { return 'immediateSiblingRight'; }
+	/ spaceReq ">~" spaceReq { return 'immediateSiblingLeft'; }
+	/ spaceReq ">" spaceReq { return 'descendant' }
+	/ spaceReq "<" spaceReq { return 'ancestor' }
+	/ spaceReq "+" spaceReq { return 'siblingRight'; }
+	/ spaceReq "~" spaceReq { return 'siblingLeft'; }
 
 selectors
 	= sel:selector groups:(space "," space selector)* {
@@ -72,8 +81,8 @@ selector
 	}
 
 selectorType
-	= wildcard / functionDef / functionRef / arrowFunction / regularExp
-	/ instanceMethod / variable / stringLiteral / literal
+	= ifStatement / whileLoop / condition / functionDef / functionRef / arrowFunction / instanceMethod
+	/ regularExp / variable / stringLiteral / literal / wildcard
 
 wildcard
 	= star:"*" {
@@ -121,20 +130,20 @@ arrowFunction
 	}
 
 regularExp
-	= "re:/" reg:[a-zA-Z.*+?><()\^\\$!:]+ "/" indicator:[igm]? {
+	= "re:/" reg:[a-zA-Z.*+?><()\^\$!:;_\-\[\]0-9=&#`~]+ "/" indicator:[igm]* {
 		return {
 			type: 'regex',
-			estree: [ 'ExpressionStatement', 'VariableDeclarator' ],
-			value: '/' + reg.join('') + '/' + (indicator || '')
+			estree: [ 'ExpressionStatement', 'VariableDeclarator', 'MemberExpression' ],
+			value: '/' + reg.join('') + '/' + (normalizeRegExFlags(indicator) || '')
 		};
 	}
 
 stringLiteral
-	= "/" reg:[a-zA-Z.*+?><()\^\\$!:_\-]+ "/" indicator:[igm]? {
+	= "/" reg:[a-zA-Z.*+?><()\^\$!:;_\-\[\]0-9=&#`~]+ "/" indicator:[igm]* {
 		return {
 			type: 'stringliteral',
 			estree: [ 'Literal' ],
-			value: indicator ? new RegExp(reg.join(''), indicator) : new RegExp(reg.join(''))
+			value: indicator ? new RegExp(reg.join(''), normalizeRegExFlags(indicator)) : new RegExp(reg.join(''))
 		};
 	}
 
@@ -152,15 +161,106 @@ literal
 		};
 	}
 
+operator
+	= "==="
+	/ "=="
+	/ "!=="
+	/ "!="
+	/ ">=="
+	/ ">="
+	/ ">"
+	/ "<=="
+	/ "<="
+	/ "<"
+
+binaryExpressionPart
+	= functionRef
+	/ regularExp
+	/ stringLiteral
+	/ arrowFunction
+	/ variable
+	/ literal
+	/ wildcard
+
+binaryExpression
+	= instanceMethod
+	/ lhs:binaryExpressionPart rhs:(operator binaryExpressionPart)? {
+		return rhs && rhs[0] ? {
+			type: 'binaryexpression',
+			estree: [ 'BinaryExpression' ],
+			operator: rhs ? rhs[0] : null,
+			left: lhs,
+			right: rhs ? rhs[1] : null
+		} : lhs;
+	}
+
 instanceMethod
-	= instance:identifier+ [.] method:identifier+ params:("(" parameters* ")")? {
+	= instance:binaryExpressionPart [.] method:identifier+ params:("(" parameters* ")")? {
 		return {
 			type: 'instancedereference',
 			estree: [ 'CallExpression', 'MemberExpression' ],
-			instance: normalizeIdentifier(instance),
+			instance: instance,
 			methodOrProperty: normalizeIdentifier(method),
 			params: normalizeParams(params)
 		};
+	}
+
+ternary
+	= binaryExpression "?" ":" 
+
+joinOperator
+	= "&&"
+	/ "||"
+
+conditionExpression
+	= "*" cond:conditionExpression {
+		return {
+			type: 'anycondition',
+			estree: [ 'LogicalExpression' ],
+			condition: cond
+		}
+	}
+	/ "(" left:conditionExpression ")" right:(joinOperator conditionExpression)? {
+		return right && right[0] ? {
+			type: 'logicalexpression',
+			estree: [ 'LogicalExpression' ],
+			operator: right ? right[0] : null,
+			left: left,
+			right: right ? right[1] : null
+		} : left;
+	}
+	/ left:binaryExpression right:(joinOperator binaryExpression)? {
+		return right && right[0] ? {
+			type: 'logicalexpression',
+			estree: [ 'LogicalExpression' ],
+			operator: right ? right[0] : null,
+			left: left,
+			right: right ? right[1] : null
+		} : left;
+	}
+	/ binaryExpression
+
+condition
+	= "cond:" cond:conditionExpression {
+		return cond;
+	}
+
+ifStatement
+	= "if:" cond:conditionExpression {
+		return {
+			type: 'ifstatement',
+			estree: [ 'IfStatement' ],
+			condition: cond
+		}
+	}
+
+whileLoop
+	= "while:" cond:conditionExpression {
+		return {
+			type: 'whileloop',
+			estree: [ 'WhileStatement' ],
+			condition: cond
+		}
 	}
 
 variableDeclarationType
@@ -185,4 +285,4 @@ parameters
 	/ [a-zA-Z"'*?,=\[\]{}. ]
 
 identifier
-	= [a-zA-Z$*_][0-9]?
+	= [a-zA-Z$_][*0-9]?

@@ -1,3 +1,4 @@
+var walk = require('./node_modules/acorn/dist/walk');
 var parser = require('./parser');
 
 module.exports = function (sourceNode, queryNode) {
@@ -78,6 +79,11 @@ module.exports = function (sourceNode, queryNode) {
 					}
 				}
 			}
+			else if (sourceNode.type === 'MemberExpression' && sourceNode.object) {
+				if (logic.regex(sourceNode.object.raw, queryNode.value)) {
+					return [ sourceNode.object ];
+				}
+			}
 			else if (sourceNode.type === 'Literal' && sourceNode.regex) {
 				if (logic.regex(sourceNode.raw, queryNode.value)) {
 					return [ sourceNode ];
@@ -96,7 +102,7 @@ module.exports = function (sourceNode, queryNode) {
 		case 'instancedereference': {
 			var searchNode = sourceNode.callee || sourceNode;
 			if (searchNode && searchNode.object && searchNode.property &&
-				(logic.identifier(searchNode.object.name, queryNode.instance)) &&
+				(module.exports(searchNode.object, queryNode.instance)) &&
 				(logic.identifier(searchNode.property.name, queryNode.methodOrProperty)) &&
 				logic.parameters(sourceNode.arguments, queryNode.params)) {
 
@@ -126,12 +132,16 @@ module.exports = function (sourceNode, queryNode) {
 						}
 					}
 				}
-				else if (sourceNode.type === 'Identifier' && logic.variable(sourceNode, queryNode.value)) {
+				else if (sourceNode.type === 'Identifier' &&
+					logic.variable(sourceNode, queryNode.value)) {
+
 					return [ sourceNode ];
 				}
 				else if (sourceNode.type === 'AssignmentExpression') {
 					if (queryNode.assignment) {
-						if (sourceNode.left && logic.variable(sourceNode.left, queryNode.value)) {
+						if (sourceNode.left &&
+							logic.variable(sourceNode.left, queryNode.value)) {
+
 							if (module.exports(sourceNode.right, queryNode.assignment)) {
 								return [ sourceNode ];
 							}
@@ -153,6 +163,55 @@ module.exports = function (sourceNode, queryNode) {
 			if (logic.literal(sourceNode.value, queryNode.value)) {
 				return [ sourceNode ];
 			}
+			break;
+		}
+
+		case 'binaryexpression': {
+			if ((!queryNode.left || (sourceNode.left && module.exports(sourceNode.left, queryNode.left))) &&
+				(!queryNode.operator || (queryNode.operator && sourceNode.operator === queryNode.operator)) &&
+				(!queryNode.right || (sourceNode.right && module.exports(sourceNode.right, queryNode.right)))) {
+
+				return [ sourceNode ];
+			}
+			break;
+		}
+
+		case 'logicalexpression': {
+			if ((!queryNode.left || (sourceNode.left && module.exports(sourceNode.left, queryNode.left))) &&
+				(!queryNode.operator || (queryNode.operator && sourceNode.operator === queryNode.operator)) &&
+				(!queryNode.right || (sourceNode.right && module.exports(sourceNode.right, queryNode.right)))) {
+				
+				return [ sourceNode ];
+			}
+			break;
+		}
+
+		case 'anycondition': {
+			if (sourceNode) {
+				var match = false;
+				var options = {};
+				queryNode.condition.estree.forEach(function (estree) {
+					options[estree] = function (node) {
+						if (module.exports(node, queryNode.condition)) {
+							match = true;
+						}
+					}
+				});
+				walk.simple(sourceNode, options);
+
+				if (match) {
+					return [ sourceNode ];
+				}
+			}
+			break;
+		}
+
+		case 'ifstatement':
+		case 'whileloop': {
+			if (sourceNode && module.exports(sourceNode.test, queryNode.condition)) {
+				return [ sourceNode ];
+			}
+			break;
 		}
 	}
 
@@ -247,25 +306,3 @@ var logic = {
 		return match;
 	}
 };
-
-function a(reg, b) {
-
-}
-
-a(/test/g, /test/g, a);
-
-var b = new RegExp('test', 'g');
-
-new RegExp('test', 'g');
-
-var c = (a, b) => {
-	return 1;
-}
-
-var d = function (a, b) {
-	return 1;
-}
-
-b.test('blah');
-
-test = 1;
