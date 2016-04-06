@@ -103,10 +103,21 @@ module.exports = function (sourceNode, queryNode) {
 			var searchNode = sourceNode.callee || sourceNode;
 			if (searchNode && searchNode.object && searchNode.property &&
 				(module.exports(searchNode.object, queryNode.instance)) &&
-				(logic.identifier(searchNode.property.name, queryNode.methodOrProperty)) &&
 				logic.parameters(sourceNode.arguments, queryNode.params)) {
 
-				return [ sourceNode ];
+				if (queryNode.methodOrProperty.every(function (name) {
+					if (typeof name === 'string') {
+						return logic.identifier(searchNode.property.name || searchNode.property.value, name);
+					}
+					else if (name.type === 'stringliteral') {
+						return searchNode.property.value ? logic.stringliteral(searchNode.property, name.value) :
+							logic.stringliteral({
+								value: searchNode.property.name
+							}, name.value);
+					}
+				})) {
+					return [ sourceNode ];
+				}
 			}
 			break;
 		}
@@ -180,7 +191,7 @@ module.exports = function (sourceNode, queryNode) {
 			if ((!queryNode.left || (sourceNode.left && module.exports(sourceNode.left, queryNode.left))) &&
 				(!queryNode.operator || (queryNode.operator && sourceNode.operator === queryNode.operator)) &&
 				(!queryNode.right || (sourceNode.right && module.exports(sourceNode.right, queryNode.right)))) {
-				
+
 				return [ sourceNode ];
 			}
 			break;

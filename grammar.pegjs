@@ -16,6 +16,20 @@
 		return flags ? flags.join('') : null;
 	}
 
+	function normalizeDereference(dereference) {
+		return dereference.map(function (deref) {
+			if (deref[0] === '[' && deref[2] === ']') {
+				return deref[1];
+			}
+			else if (deref[0].type === 'wildcard') {
+				return deref[0];
+			}
+			else {
+				return normalizeIdentifier(deref[0]);
+			}
+		});
+	}
+
 	function findLastParent(parent) {
 		if (parent && parent.parent) {
 			return findLastParent(parent.parent);
@@ -146,6 +160,13 @@ stringLiteral
 			value: indicator ? new RegExp(reg.join(''), normalizeRegExFlags(indicator)) : new RegExp(reg.join(''))
 		};
 	}
+	/ "'" str:[a-zA-Z.*+?><()\^\$!:;_\-\[\]0-9=&#`~]+ "'" {
+		return {
+			type: 'stringliteral',
+			estree: [ 'Literal' ],
+			value: new RegExp(str.join(''))
+		};
+	}
 
 literals
 	= [0-9]+
@@ -194,13 +215,18 @@ binaryExpression
 		} : lhs;
 	}
 
+dereferencePart
+	= "[" stringLiteral "]" [.]?
+	/ identifier+ [.]?
+	/ wildcard [.]?
+
 instanceMethod
-	= instance:binaryExpressionPart [.] method:identifier+ params:("(" parameters* ")")? {
+	= instance:binaryExpressionPart [.]? deref:dereferencePart+ params:("(" parameters* ")")? {
 		return {
 			type: 'instancedereference',
 			estree: [ 'CallExpression', 'MemberExpression' ],
 			instance: instance,
-			methodOrProperty: normalizeIdentifier(method),
+			methodOrProperty: normalizeDereference(deref),
 			params: normalizeParams(params)
 		};
 	}

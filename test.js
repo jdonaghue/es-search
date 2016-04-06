@@ -24,7 +24,14 @@ test = 1;
 
 if (10 > 1) {
 	a = 10;
+	if (5) {
+		b['test'] = 14;
+	}
 }
+
+function obj() {};
+
+obj['test'] = 10;
 
 if (/test[0-9]/.test('test')) {
 	var b = 10;

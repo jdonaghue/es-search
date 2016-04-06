@@ -13,6 +13,7 @@ var queryAst = parser.parse(query);
 var files = [];
 console.log(JSON.stringify(queryAst, null, 4));
 
+//return
 function readDirectory(directory) {
 	var paths = fs.readdirSync(directory);
 	var files = [];
