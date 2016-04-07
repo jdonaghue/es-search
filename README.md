@@ -26,8 +26,8 @@ fndef:*(a, b, c) // any function name
 fndef:(a, b, c) // anonymous
 
 // arrow function search
-()
-(a, b, c)
+arrow:()
+arrow:(a, b, c)
 
 // function invocation search
 fn:add
@@ -52,31 +52,19 @@ re:/a/g // normal regular expression syntax prefixed by a 're:'
 true
 false
 
-// conditional search
-cond:*  // any conditional expression
-cond:a==b
-cond:a===b
-cond:a
-cond:!a
-cond:a!=b
-cond:a!==b
-cond:a>b // all operators are supported
-cond:a&&b===c
-cond:(a&&b)||c // grouping
-cond:(a, b)  // arrow functions
-cond:fndef(a, b) // anonymous functions
-
-// expression search
-expr:i++
-expr:a+b
-expr:a*b
-expr:a*b/c
-expr:(a*b)/c
-
 // if statement search
-if:*a // a condition that contains a variable named 'a'
-if:*re:/test/g 
-if:a==b // same as conditional search
+if:*  // any conditional expression
+if:a==b
+if:a===b
+if:a
+if:!a
+if:a!=b
+if:a!==b
+if:a>b // all operators are supported
+if:a&&b===c
+if:(a&&b)||c // grouping
+if:(a, b)  // arrow functions
+if:fndef(a, b) // anonymous functions
 
 // while loop search
 while:*a // a condition that contains a variable named 'a'
@@ -84,13 +72,15 @@ while:*re:/test/g
 while:a==b // same as conditional search
 
 // for loop search
-for:*;a;* // any for loop that contains a condition with a variable named 'a'
-for:*;cond:;* // only care about the condition
-for:variable;cond:;expr:
+// TODO: implement this
+// for:*;a;* // any for loop that contains a condition with a variable named 'a'
+// for:*;cond:;* // only care about the condition
+// for:variable;cond:;expr:
 
 // for in 
-forin:a
-forin:a>b // a in b
+// TODO: implement this
+// forin:a
+// forin:a>b // a in b
 
 // for of
 // TODO: define this

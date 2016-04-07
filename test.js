@@ -22,11 +22,22 @@ b.test('blah');
 
 test = 1;
 
-if (10 > 1) {
+if (10 > 1 && true && true === 'true') {
 	a = 10;
 	if (5) {
 		b['test'] = 14;
 	}
+}
+
+if (10 > 1 && (true && (true === 'true' || 4 === 5))) {
+	a = 10;
+	if (5) {
+		b['test'] = 14;
+	}
+}
+
+if (b.test()) {
+	var blah = 10;
 }
 
 function obj() {};
