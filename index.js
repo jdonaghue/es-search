@@ -6,14 +6,11 @@ var fs = require('fs');
 var pathUtil = require('path');
 
 var fileOrDirectory = process.argv[2];
-// example: '!let:counter > /a+$/g >+ obj#blah(*, b, *) >+ fn:* + (), agroup + re:/^blah/g');
 var query = process.argv.slice(3).join('');
-//console.log(query);
 var queryAst = parser.parse(query);
 var files = [];
-console.log(JSON.stringify(queryAst, null, 4));
+//console.log(JSON.stringify(queryAst, null, 4));
 
-//return
 function readDirectory(directory) {
 	var paths = fs.readdirSync(directory);
 	var files = [];
@@ -51,7 +48,7 @@ files.forEach(function (file) {
 		var lineNumbers = {};
 		var verified = search(queryAst, fileAst);
 		verified.forEach(function (node) {
-			var lineNumber = node.loc.start.line + ':' + node.loc.start.column + '-'
+			var lineNumber = node.loc.start.line + ':' + node.loc.start.column + '-' +
 				node.loc.end.line + ':' + node.loc.end.column;
 			if (!(lineNumber in lineNumbers)) {
 				unique.push(node);
