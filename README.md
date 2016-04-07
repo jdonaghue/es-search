@@ -4,7 +4,7 @@ Search a directory/file containing ECMAScript code and find complex structures u
 
 ## Example usage
 
-`if:10>1**(truth&&(a===/true/)) > while:counter<10 > counter++`
+`if:10>1&&(truth&&(a===/true/)) > while:counter<10 > counter++`
 
 
 ```js
