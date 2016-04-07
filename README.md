@@ -63,13 +63,13 @@ if:a!==b
 if:a>b // all operators are supported
 if:a&&b===c
 if:(a&&b)||c // grouping
-if:(a, b)  // arrow functions
-if:fndef(a, b) // anonymous functions
+if:arrow:(a, b)  // arrow functions
+if:fndef:(a, b) // anonymous functions
 
 // while loop search
 while:*a // a condition that contains a variable named 'a'
 while:*re:/test/g 
-while:a==b // same as conditional search
+while:a==b // same as if statement search
 
 // for loop search
 // TODO: implement this
