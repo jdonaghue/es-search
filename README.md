@@ -4,8 +4,30 @@ Search a directory/file containing ECMAScript code and find complex structures u
 
 ## Example usage
 
+The following query:
+
 `if:10>1&&(truth&&(a===/true/)) > while:counter<10 > counter++`
 
+would return:
+```
+line 10: if (10 > 1 && (truth && (a === 'true'))) {
+line 11:	// ... other code
+line 12:	while(counter < 10) {
+line 13:		// ... other code
+line 14:
+```
+```
+line 15:		counter++; // this would be highlighted
+```
+```
+line 16:	}
+line 17:
+line 18:	// ... other code
+line 19: }
+```
+
+
+Possible selector parts:
 
 ```js
 // variable search

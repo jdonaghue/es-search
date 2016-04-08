@@ -36,13 +36,6 @@
 		}
 		return parent;
 	}
-
-	function findLastRight(right) {
-		if (right && right.right) {
-			return findLastRight(right.right);
-		}
-		return right;
-	}
 }
 
 start
