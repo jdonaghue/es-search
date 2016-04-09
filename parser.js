@@ -2621,13 +2621,6 @@ module.exports = (function() {
     		return parent;
     	}
 
-    	function findLastRight(right) {
-    		if (right && right.right) {
-    			return findLastRight(right.right);
-    		}
-    		return right;
-    	}
-
 
     peg$result = peg$startRuleFunction();
 

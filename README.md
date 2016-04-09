@@ -12,18 +12,19 @@ would return:
 ```
 line 10: if (10 > 1 && (truth && (a === 'true'))) {
 line 11:	// ... other code
-line 12:	while(counter < 10) {
-line 13:		// ... other code
-line 14:
+line 12:
+line 13:	while(counter < 10) {
+line 14:		// ... other code
+line 15:
 ```
 ```
-line 15:		counter++; // this would be highlighted
+line 16:		counter++; // this would be highlighted
 ```
 ```
-line 16:	}
-line 17:
-line 18:	// ... other code
-line 19: }
+line 17:	}
+line 18:
+line 19:	// ... other code
+line 20: }
 ```
 
 
