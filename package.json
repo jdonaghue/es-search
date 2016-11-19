@@ -1,17 +1,17 @@
 {
   "name": "es-search",
   "version": "0.0.1",
-  "description": "Search ECMAScript structurally",
+  "description": "Search ECMAScript Structurally",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-grammar": "node ./node_modules/pegjs/bin/pegjs grammar.pegjs parser.js"
+    "grammar": "node ./node_modules/pegjs/bin/pegjs grammar.pegjs parser.js"
   },
   "keywords": [],
   "author": "James Donaghue",
   "license": "ISC",
   "engines": {
-    "node": ">=4.0"
+    "node": ">=6.0"
   },
   "dependencies": {
     "acorn": "^3.0.4",
