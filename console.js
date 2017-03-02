@@ -34,7 +34,7 @@ function formatLine(line, formats) {
   return line;
 }
 
-export default function (results) {
+module.exports = function (results) {
   results.forEach(function (result) {
     if (result.verified.length) {
       const source = result.source.split(/\r\n?|\n/g);

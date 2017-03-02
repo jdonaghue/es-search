@@ -1,5 +1,5 @@
-import walk from './node_modules/acorn/dist/walk';
-import matcher from './matcher';
+const walk = require('./node_modules/acorn/dist/walk');
+const matcher = require('./matcher');
 
 const walker = {
   descendant(rootNode, contextNode) {
@@ -72,7 +72,7 @@ function execute(query, fileAst) {
   return results;
 };
 
-export default function (queryAst, fileAst) {
+module.exports = function search(queryAst, fileAst) {
   let results = [];
 
   if (queryAst.type === 'groups') {

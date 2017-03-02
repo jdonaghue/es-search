@@ -1,5 +1,5 @@
-import walk from './node_modules/acorn/dist/walk';
-import parser from './parser';
+const walk = require('./node_modules/acorn/dist/walk');
+const parser = require('./parser');
 
 const logic = {
   stringliteral(toTest, tester) {
@@ -56,7 +56,7 @@ const logic = {
             if (typeof param === 'string') {
               param = parser.parse(param);
             }
-            match = !!module.exports(arg, param);
+            match = !!matcher(arg, param);
             if (match) {
               param = parameters[++index];
               wildcard = false;
@@ -82,7 +82,7 @@ const logic = {
             if (typeof param === 'string') {
               param = parser.parse(param);
             }
-            match = !!module.exports(arg, param);
+            match = !!matcher(arg, param);
           }
         });
       }
@@ -93,7 +93,7 @@ const logic = {
   }
 };
 
-export default function (sourceNode, queryNode) {
+module.exports = function matcher(sourceNode, queryNode) {
   if (!sourceNode || (queryNode && !queryNode.type)) {
     return false;
   }
@@ -153,7 +153,7 @@ export default function (sourceNode, queryNode) {
         } else if (sourceNode.expression.type === 'CallExpression') {
           var matched = [];
           sourceNode.expression.arguments.forEach(function (arg) {
-            var matches = module.exports(arg, queryNode);
+            var matches = matcher(arg, queryNode);
             if (matches) {
               matched = matched.concat(matches);
             }
@@ -195,9 +195,9 @@ export default function (sourceNode, queryNode) {
       if (queryNode.left) {
         if (sourceNode.type === 'AssignmentExpression' &&
           sourceNode.left.type === 'MemberExpression') {
-          if (!!module.exports(sourceNode.left, queryNode.left) &&
+          if (!!matcher(sourceNode.left, queryNode.left) &&
             sourceNode.operator === queryNode.right.operator &&
-            !!module.exports(sourceNode.right, queryNode.right.value)) {
+            !!matcher(sourceNode.right, queryNode.right.value)) {
             return [ sourceNode ];
           }
         }
@@ -205,7 +205,7 @@ export default function (sourceNode, queryNode) {
       else {
         var searchNode = sourceNode.callee || sourceNode;
         if (searchNode && searchNode.object && searchNode.property &&
-          (module.exports(searchNode.object, queryNode.instance)) &&
+          (matcher(searchNode.object, queryNode.instance)) &&
           logic.parameters(sourceNode.arguments, queryNode.params)) {
 
           if (queryNode.methodOrProperty.every(function (name) {
@@ -237,7 +237,7 @@ export default function (sourceNode, queryNode) {
 
           if (node) {
             if (queryNode.assignment) {
-              if (node.init && module.exports(node.init, queryNode.assignment)) {
+              if (node.init && matcher(node.init, queryNode.assignment)) {
                 return [ sourceNode ];
               }
             } else {
@@ -255,7 +255,7 @@ export default function (sourceNode, queryNode) {
             if (sourceNode.left &&
               logic.variable(sourceNode.left, queryNode.value)) {
 
-              if (module.exports(sourceNode.right, queryNode.assignment)) {
+              if (matcher(sourceNode.right, queryNode.assignment)) {
                 return [ sourceNode ];
               }
             }
@@ -279,9 +279,9 @@ export default function (sourceNode, queryNode) {
     }
 
     case 'binaryexpression': {
-      if ((!queryNode.left || !!module.exports(sourceNode.left, queryNode.left)) &&
+      if ((!queryNode.left || !!matcher(sourceNode.left, queryNode.left)) &&
         (!queryNode.operator || sourceNode.operator === queryNode.operator) &&
-        (!queryNode.right || !!module.exports(sourceNode.right, queryNode.right))) {
+        (!queryNode.right || !!matcher(sourceNode.right, queryNode.right))) {
 
         return [ sourceNode ];
       }
@@ -289,9 +289,9 @@ export default function (sourceNode, queryNode) {
     }
 
     case 'logicalexpression': {
-      if ((!queryNode.left || !!module.exports(sourceNode.left, queryNode.left)) &&
+      if ((!queryNode.left || !!matcher(sourceNode.left, queryNode.left)) &&
         (!queryNode.operator || sourceNode.operator === queryNode.operator) &&
-        (!queryNode.right || !!module.exports(sourceNode.right, queryNode.right))) {
+        (!queryNode.right || !!matcher(sourceNode.right, queryNode.right))) {
 
         return [ sourceNode ];
       }
@@ -305,7 +305,7 @@ export default function (sourceNode, queryNode) {
         var options = {};
         queryNode.condition.estree.forEach(function (estree) {
           options[estree] = function (node) {
-            if (module.exports(node, queryNode.condition)) {
+            if (matcher(node, queryNode.condition)) {
               match = true;
             }
           }
@@ -321,7 +321,7 @@ export default function (sourceNode, queryNode) {
 
     case 'ifstatement':
     case 'whileloop': {
-      if (sourceNode && module.exports(sourceNode.test, queryNode.condition)) {
+      if (sourceNode && matcher(sourceNode.test, queryNode.condition)) {
         return [ sourceNode ];
       }
       break;
