@@ -1,4 +1,4 @@
-import walk from 'acorn-walk';
+import { traverse } from '@babel/traverse';
 import { parse as queryParse } from './queryParser';
 
 const logic = {
@@ -99,7 +99,7 @@ export default function matcher(sourceNode, queryNode) {
   }
 
   if (!queryNode) {
-    return [ sourceNode ];
+    return [sourceNode];
   }
 
   switch (queryNode.type) {
@@ -110,7 +110,7 @@ export default function matcher(sourceNode, queryNode) {
           sourceNode.type !== 'ArrowFunctionExpression')) &&
         logic.parameters(sourceNode.params, queryNode.params)) {
 
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }
@@ -120,7 +120,7 @@ export default function matcher(sourceNode, queryNode) {
         logic.identifier(sourceNode.callee.name, queryNode.name) &&
         logic.parameters(sourceNode.arguments, queryNode.params)) {
 
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }
@@ -129,7 +129,7 @@ export default function matcher(sourceNode, queryNode) {
       if (sourceNode.type === 'ArrowFunctionExpression' &&
         logic.parameters(sourceNode.params, queryNode.params)) {
 
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }
@@ -139,7 +139,7 @@ export default function matcher(sourceNode, queryNode) {
         if (sourceNode.expression.type === 'Literal') {
           if (sourceNode.expression.regex &&
             logic.regex(sourceNode.expression.raw, queryNode.value)) {
-            return [ sourceNode.expression ];
+            return [sourceNode.expression];
           }
         } else if (sourceNode.expression.type === 'NewExpression' &&
           sourceNode.expression.callee.name === 'RegExp') {
@@ -148,7 +148,7 @@ export default function matcher(sourceNode, queryNode) {
           }).join('');
 
           if (logic.regex(toTest, queryNode.value)) {
-            return [ sourceNode ];
+            return [sourceNode];
           }
         } else if (sourceNode.expression.type === 'CallExpression') {
           var matched = [];
@@ -169,16 +169,16 @@ export default function matcher(sourceNode, queryNode) {
           }).join('');
 
           if (logic.regex(toTest, queryNode.value)) {
-            return [ sourceNode.init ];
+            return [sourceNode.init];
           }
         }
       } else if (sourceNode.type === 'MemberExpression' && sourceNode.object) {
         if (logic.regex(sourceNode.object.raw, queryNode.value)) {
-          return [ sourceNode.object ];
+          return [sourceNode.object];
         }
       } else if (sourceNode.type === 'Literal' && sourceNode.regex) {
         if (logic.regex(sourceNode.raw, queryNode.value)) {
-          return [ sourceNode ];
+          return [sourceNode];
         }
       }
       break;
@@ -186,7 +186,7 @@ export default function matcher(sourceNode, queryNode) {
 
     case 'stringliteral': {
       if (logic.stringliteral(sourceNode, queryNode.value)) {
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }
@@ -198,7 +198,7 @@ export default function matcher(sourceNode, queryNode) {
           if (!!matcher(sourceNode.left, queryNode.left) &&
             sourceNode.operator === queryNode.right.operator &&
             !!matcher(sourceNode.right, queryNode.right.value)) {
-            return [ sourceNode ];
+            return [sourceNode];
           }
         }
       }
@@ -218,7 +218,7 @@ export default function matcher(sourceNode, queryNode) {
                 }, name.value);
             }
           })) {
-            return [ sourceNode ];
+            return [sourceNode];
           }
         }
       }
@@ -238,17 +238,17 @@ export default function matcher(sourceNode, queryNode) {
           if (node) {
             if (queryNode.assignment) {
               if (node.init && matcher(node.init, queryNode.assignment)) {
-                return [ sourceNode ];
+                return [sourceNode];
               }
             } else {
-              return [ node ];
+              return [node];
             }
           }
         }
         else if (sourceNode.type === 'Identifier' &&
           logic.variable(sourceNode, queryNode.value)) {
 
-          return [ sourceNode ];
+          return [sourceNode];
         }
         else if (sourceNode.type === 'AssignmentExpression') {
           if (queryNode.assignment) {
@@ -256,11 +256,11 @@ export default function matcher(sourceNode, queryNode) {
               logic.variable(sourceNode.left, queryNode.value)) {
 
               if (matcher(sourceNode.right, queryNode.assignment)) {
-                return [ sourceNode ];
+                return [sourceNode];
               }
             }
           } else if (logic.variable(sourceNode.left, queryNode.value)) {
-            return [ sourceNode ];
+            return [sourceNode];
           }
         }
       }
@@ -268,12 +268,12 @@ export default function matcher(sourceNode, queryNode) {
     }
 
     case 'wildcard': {
-      return [ sourceNode ];
+      return [sourceNode];
     }
 
     case 'literal': {
       if (logic.literal(sourceNode.value, queryNode.value)) {
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }
@@ -283,7 +283,7 @@ export default function matcher(sourceNode, queryNode) {
         (!queryNode.operator || sourceNode.operator === queryNode.operator) &&
         (!queryNode.right || !!matcher(sourceNode.right, queryNode.right))) {
 
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }
@@ -293,7 +293,7 @@ export default function matcher(sourceNode, queryNode) {
         (!queryNode.operator || sourceNode.operator === queryNode.operator) &&
         (!queryNode.right || !!matcher(sourceNode.right, queryNode.right))) {
 
-        return [ sourceNode ];
+        return [sourceNode];
       }
 
       break;
@@ -310,10 +310,10 @@ export default function matcher(sourceNode, queryNode) {
             }
           }
         });
-        walk.simple(sourceNode, options);
+        // walk.simple(sourceNode, options);
 
         if (match) {
-          return [ sourceNode ];
+          return [sourceNode];
         }
       }
       break;
@@ -322,7 +322,7 @@ export default function matcher(sourceNode, queryNode) {
     case 'ifstatement':
     case 'whileloop': {
       if (sourceNode && matcher(sourceNode.test, queryNode.condition)) {
-        return [ sourceNode ];
+        return [sourceNode];
       }
       break;
     }

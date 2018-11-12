@@ -51,3 +51,7 @@ if (/test[0-9]/.test('test')) {
 if ((10===b) &&  4 > 3) {
 	a = 10
 }
+
+const t = (
+	<div />
+);

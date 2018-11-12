@@ -1,13 +1,11 @@
-import { Parser } from 'acorn';
+import { parse } from '@babel/parser';
 import { lstatSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 import consoleReporter from './console';
 import search from './search';
 import { parse as queryParse } from './queryParser';
-
-const acornJsx = require('acorn-jsx');
-const FileParser = Parser.extend(acornJsx());
+import parseOptions from './parseOptions';
 
 const fileOrDirectory = process.argv[2];
 const query = process.argv.slice(3).join('');
@@ -39,13 +37,7 @@ const results = [];
 files.forEach(function (file) {
   const source = readFileSync(file, 'utf8');
   try {
-    const fileAst = FileParser.parse(source, {
-      locations: true,
-      sourceFile: file,
-      allowImportExportEverywhere: true,
-      ecmaVersion: 7
-    });
-
+    const fileAst = parse(source, parseOptions);
     const unique = [];
     const lineNumbers = {};
     const verified = search(queryAst, fileAst);
@@ -64,7 +56,7 @@ files.forEach(function (file) {
       sourceFile: file
     });
     
-    consoleReporter([ results[results.length - 1] ]);
+    consoleReporter([results[results.length - 1]]);
   } catch (ex) {
     console.log('Error with file: ' + file, ex.stack);
   }

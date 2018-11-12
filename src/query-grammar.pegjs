@@ -115,7 +115,7 @@ functionDef
   = "fndef:" name:identifier* params:("(" [.a-zA-Z$,?*]* ")")? {
     return {
       type: 'fndef',
-      estree: [ 'Function' ],
+      estree: ['Function'],
       name: normalizeIdentifier(name),
       params: params ? params[1].join('').split(',') : null
     };
@@ -125,7 +125,7 @@ functionRef
   = "fn:" name:identifier* params:("(" parameters* ")")? {
     return {
       type: 'fnref',
-      estree: [ 'CallExpression' ],
+      estree: ['CallExpression'],
       name: normalizeIdentifier(name),
       params: normalizeParams(params)
     };
@@ -135,7 +135,7 @@ arrowFunction
   = "arrow:" params:("(" parameters* ")") {
     return {
       type: 'arrowfn',
-      estree: [ 'ArrowFunctionExpression' ],
+      estree: ['ArrowFunctionExpression'],
       params: normalizeParams(params)
     };
   }
@@ -144,7 +144,7 @@ regularExp
   = "re:/" reg:[a-zA-Z.*+?><()\^\$!:;_\-\[\]0-9=&#`~]+ "/" indicator:[igm]* {
     return {
       type: 'regex',
-      estree: [ 'ExpressionStatement', 'VariableDeclarator', 'MemberExpression' ],
+      estree: ['ExpressionStatement', 'VariableDeclarator', 'MemberExpression'],
       value: '/' + reg.join('') + '/' + (normalizeRegExFlags(indicator) || '')
     };
   }
@@ -153,14 +153,14 @@ stringLiteral
   = "/" reg:[a-zA-Z.*+?><()\^\$!:;_\-\[\]0-9=&#`~]+ "/" indicator:[igm]* {
     return {
       type: 'stringliteral',
-      estree: [ 'Literal' ],
+      estree: ['Literal'],
       value: indicator ? new RegExp(reg.join(''), normalizeRegExFlags(indicator)) : new RegExp(reg.join(''))
     };
   }
   / "'" str:[a-zA-Z.*+?><()\^\$!:;_\-\[\]0-9=&#`~]+ "'" {
     return {
       type: 'stringliteral',
-      estree: [ 'Literal' ],
+      estree: ['Literal'],
       value: new RegExp(str.join(''))
     };
   }
@@ -174,7 +174,7 @@ literal
   = lit:literals {
     return {
       type: 'literal',
-      estree: [ 'Literal' ],
+      estree: ['Literal'],
       value: lit.join ? lit.join('') : lit
     };
   }
@@ -209,7 +209,7 @@ instanceMethod
   = instance:instanceMethodPart [.]? deref:dereferencePart+ right:([+\-=]+ instanceMethodPart)  {
     return {
       type: 'instancedereference',
-      estree: [ 'CallExpression', 'MemberExpression', 'AssignmentExpression' ],
+      estree: ['CallExpression', 'MemberExpression', 'AssignmentExpression'],
       left: {
         type: 'instancedereference',
         instance: instance,
@@ -225,7 +225,7 @@ instanceMethod
   / instance:instanceMethodPart [.]? deref:dereferencePart+ params:("(" parameters* ")")? {
     return {
       type: 'instancedereference',
-      estree: [ 'CallExpression', 'MemberExpression' ],
+      estree: ['CallExpression', 'MemberExpression'],
       instance: instance,
       methodOrProperty: normalizeDereference(deref),
       params: normalizeParams(params)
@@ -246,7 +246,7 @@ binaryExpression
   = left:binaryExpressionPart right:(operator binaryExpressionPart)? {
     return right && right[0] ? {
       type: 'binaryexpression',
-      estree: [ 'BinaryExpression' ],
+      estree: ['BinaryExpression'],
       operator: right[0],
       left: left,
       right: right[1]
@@ -264,7 +264,7 @@ logicalExpression
   = left:binaryExpression operator:binaryExpressionJoinOperator right:binaryExpression {
     return {
       type: 'logicalexpression',
-      estree: [ 'LogicalExpression' ],
+      estree: ['LogicalExpression'],
       left: left,
       operator: operator,
       right: right
@@ -279,7 +279,7 @@ condition
   = left:logicalExpression right:(binaryExpressionJoinOperator logicalExpression) {
     return {
       type: 'logicalexpression',
-      estree: [ 'LogicalExpression' ],
+      estree: ['LogicalExpression'],
       left: left,
       operator: right[0],
       right: right[1] 
@@ -288,14 +288,14 @@ condition
   / "*" cond:binaryExpression {
     return {
       type: 'anycondition',
-      estree: [ 'LogicalExpression' ],
+      estree: ['LogicalExpression'],
       condition: cond
     }
   }
   / "(" expr:binaryExpression operator:binaryExpressionJoinOperator cond:condition ")" {
     return {
       type: 'logicalexpression',
-      estree: [ 'LogicalExpression' ],
+      estree: ['LogicalExpression'],
       left: left,
       operator: operator,
       right: right
@@ -306,21 +306,21 @@ ifStatement
   = "if:" cond:condition {
     return {
       type: 'ifstatement',
-      estree: [ 'IfStatement' ],
+      estree: ['IfStatement'],
       condition: cond
     }
   }
   / "if:" cond:logicalExpression {
     return {
       type: 'ifstatement',
-      estree: [ 'IfStatement' ],
+      estree: ['IfStatement'],
       condition: cond
     }
   }
   / "if:" cond:binaryExpression {
     return {
       type: 'ifstatement',
-      estree: [ 'IfStatement' ],
+      estree: ['IfStatement'],
       condition: cond
     }
   }
@@ -329,21 +329,21 @@ whileLoop
   = "while:" cond:condition {
     return {
       type: 'whileloop',
-      estree: [ 'WhileStatement' ],
+      estree: ['WhileStatement'],
       condition: cond
     }
   }
   / "while:" cond:logicalExpression {
     return {
       type: 'whileloop',
-      estree: [ 'WhileStatement' ],
+      estree: ['WhileStatement'],
       condition: cond
     }
   }
   / "while:" cond:binaryExpression {
     return {
       type: 'whileloop',
-      estree: [ 'WhileStatement' ],
+      estree: ['WhileStatement'],
       condition: cond
     }
   }
@@ -358,7 +358,7 @@ variable
   = definitionType:(variableDeclarationType ":")? name:identifier+ assignment:("=" selectorType)? {
     return {
       type: 'variable',
-      estree: [ 'VariableDeclaration', 'AssignmentExpression' ],
+      estree: ['VariableDeclaration', 'AssignmentExpression'],
       value: normalizeIdentifier(name),
       definitionType: definitionType ? definitionType[0] : null,
       assignment: assignment ? assignment[1] : null

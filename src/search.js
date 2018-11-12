@@ -1,21 +1,29 @@
-import * as walk from 'acorn-walk';
+import traverse from '@babel/traverse';
 import matcher from './matcher';
 
 const walker = {
   descendant(rootNode, contextNode) {
-    const options = {}
+    const finders = [];
     let found = false;
-    options[rootNode.type] = function (node) {
+    
+    finders.push(function (node) {
       if (node === contextNode) {
         found = true;
       }
-    }
-    options[contextNode.type] = function (node) {
+    });
+    finders.push(function (node) {
       if (node === contextNode) {
         found = true;
       }
-    }
-    walk.simple(rootNode, options);
+    });
+
+    traverse(rootNode, {
+      enter(path) {
+        finders.forEach(finder => (
+          finder(path.node)
+        ));
+      }
+    });
     return found;
   }
 };
@@ -30,14 +38,14 @@ function execute(query, fileAst) {
   let inMatchingMode = true;
 
   while (query) {
-    const options = {};
+    const estreeMatchers = {};
     let parentNodes = [];
 
     if (query.type === 'combinator') {
       currentCombinator = query.value;
     } else {
       query.estree.forEach(function (estree) {
-        options[estree] = function (node) {
+        estreeMatchers[estree] = function (node) {
           const matches = matcher(node, query);
           if (matches) {
             if (inMatchingMode) {
@@ -51,10 +59,22 @@ function execute(query, fileAst) {
     }
 
     if (!currentCombinator) {
-      walk.simple(fileAst, options);
+      traverse(fileAst, {
+        enter(path) {
+          Object.keys(estreeMatchers).forEach(type => (
+            estreeMatchers[type](path.node)
+          ));
+        }
+      });
     } else if (query.type !== 'combinator') {
       inMatchingMode = false;
-      walk.simple(fileAst, options);
+      traverse(fileAst, {
+        enter(path) {
+          Object.keys(estreeMatchers).forEach(type => (
+            estreeMatchers[type](path.node)
+          ));
+        }
+      });
 
       const prunedList = [];
       results.forEach(function (node) {
