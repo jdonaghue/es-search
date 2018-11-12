@@ -1,3 +1,3 @@
-const search = require('./lib');
+const search = require('./dist');
 
 module.exports = search;

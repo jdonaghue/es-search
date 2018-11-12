@@ -4,9 +4,9 @@
   "description": "Search ECMAScript Structurally",
   "main": "index.js",
   "scripts": {
-    "prebuild": "mkdirp lib & npm run build-grammar",
-    "build": "babel src -d lib --source-maps",
-    "build-grammar": "pegjs -o lib/queryParser.js src/query-grammar.pegjs"
+    "prebuild": "mkdirp dist & npm run build-grammar",
+    "build": "babel src -d dist --source-maps",
+    "build-grammar": "pegjs -o dist/queryParser.js src/query-grammar.pegjs"
   },
   "keywords": [],
   "author": "James Donaghue",

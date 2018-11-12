@@ -37,7 +37,7 @@ const results = [];
 files.forEach(function (file) {
   const source = readFileSync(file, 'utf8');
   try {
-    const fileAst = parse(source, parseOptions);
+    const fileAst = parse(source, parseOptions(file));
     const unique = [];
     const lineNumbers = {};
     const verified = search(queryAst, fileAst);

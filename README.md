@@ -2,7 +2,12 @@
 
 Search a directory/file containing ECMAScript code and find complex structures using a CSS Selector-like syntax.
 
-## Example usage
+## To run
+
+1 `npm run build`
+2 `node index.js <file|directory> "<selector>"`
+
+## Example selectors
 
 The following query:
 

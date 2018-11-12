@@ -1,5 +1,6 @@
 import { traverse } from '@babel/traverse';
 import { parse as queryParse } from './queryParser';
+import { ENETRESET } from 'constants';
 
 const logic = {
   stringliteral(toTest, tester) {
@@ -301,16 +302,24 @@ export default function matcher(sourceNode, queryNode) {
 
     case 'anycondition': {
       if (sourceNode) {
-        var match = false;
-        var options = {};
+        let match = false;
+        const matchers = {};
+
         queryNode.condition.estree.forEach(function (estree) {
-          options[estree] = function (node) {
+          matchers[estree] = function (node) {
             if (matcher(node, queryNode.condition)) {
               match = true;
             }
           }
+          
         });
-        // walk.simple(sourceNode, options);
+        traverse(sourceNode, {
+          enter(path) {
+            Object.keys(matchers).forEach(type => (
+              matchers[type](type.node)
+            ));
+          }
+        })
 
         if (match) {
           return [sourceNode];
