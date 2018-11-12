@@ -4,8 +4,8 @@ Search a directory/file containing ECMAScript code and find complex structures u
 
 ## To run
 
-1 `npm run build`
-2 `node index.js <file|directory> "<selector>"`
+1. `npm run build`
+2. `node index.js <file|directory> "<selector>"`
 
 ## Example selectors
 
