@@ -1,6 +1,5 @@
 export default {
-  codeFrame: true,
-  // sourceType: options.sourceType,
+  sourceType: "unambiguous",
   allowImportExportEverywhere: true,
   allowReturnOutsideFunction: true,
   allowSuperOutsideMethod: true,
@@ -14,9 +13,6 @@ export default {
     "asyncGenerators",
     "classConstructorCall",
     "classProperties",
-    // legacyDecorators
-    //   ? "decorators-legacy"
-    //   : ["decorators", { decoratorsBeforeExport: false }],
     ["decorators", { decoratorsBeforeExport: false }],
     "doExpressions",
     "exponentiationOperator",
