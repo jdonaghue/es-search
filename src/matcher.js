@@ -1,5 +1,5 @@
-const walk = require('./node_modules/acorn/dist/walk');
-const parser = require('./parser');
+import walk from 'acorn-walk';
+import { parse as queryParse } from './queryParser';
 
 const logic = {
   stringliteral(toTest, tester) {
@@ -54,7 +54,7 @@ const logic = {
 
           if (param && param !== '?') {
             if (typeof param === 'string') {
-              param = parser.parse(param);
+              param = queryParse(param);
             }
             match = !!matcher(arg, param);
             if (match) {
@@ -80,7 +80,7 @@ const logic = {
           }
           if (match && param !== '?') {
             if (typeof param === 'string') {
-              param = parser.parse(param);
+              param = queryParse(param);
             }
             match = !!matcher(arg, param);
           }
@@ -93,7 +93,7 @@ const logic = {
   }
 };
 
-module.exports = function matcher(sourceNode, queryNode) {
+export default function matcher(sourceNode, queryNode) {
   if (!sourceNode || (queryNode && !queryNode.type)) {
     return false;
   }

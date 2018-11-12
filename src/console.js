@@ -1,8 +1,8 @@
-require('colors');
+import 'colors';
 
 function formatLine(line, formats) {
   if (formats) {
-    const colors = [ 'white' ];
+    const colors = ['white'];
     const parts = [];
     const offset = formats.offset;
     let lastStop = offset;
@@ -34,7 +34,7 @@ function formatLine(line, formats) {
   return line;
 }
 
-module.exports = function (results) {
+export default function (results) {
   results.forEach(function (result) {
     if (result.verified.length) {
       const source = result.source.split(/\r\n?|\n/g);
