@@ -1,4 +1,4 @@
-import 'colors';
+require('colors');
 
 function formatLine(line, formats) {
   if (formats) {
@@ -34,16 +34,16 @@ function formatLine(line, formats) {
   return line;
 }
 
-export default function (results) {
+module.exports = function (results) {
   results.forEach(function (result) {
-    if (result.verified.length) {
+    if (result.found.length) {
       const source = result.source.split(/\r\n?|\n/g);
       const report = [];
       const formats = {};
       let sections = {};
       let previousEndLine = 0;
 
-      result.verified.sort(function (a, b) {
+      result.found.sort(function (a, b) {
         const aStart = a.loc.start.line;
         const bStart = b.loc.start.line;
         const aColStart = a.loc.start.column;
@@ -61,7 +61,7 @@ export default function (results) {
         return 0;
       });
 
-      result.verified.forEach(function (verified) {
+      result.found.forEach(function (verified) {
         const start = verified.loc.start.line - 5;
         const startColumn = verified.loc.start.column;
         const endColumn = verified.loc.end.column;

@@ -48,10 +48,12 @@ if (/test[0-9]/.test('test')) {
 	var b = 10;
 }
 
-if ((10===b) &&  4 > 3) {
+if ((10===b) && 4 > 3) {
 	a = 10
 }
 
 const t = (
 	<div />
 );
+
+class A {}

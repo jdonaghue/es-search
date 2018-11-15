@@ -1,5 +1,4 @@
-export default (sourceFileName) => ({
-  sourceFileName,
+export default {
   sourceType: 'unambiguous',
   allowAwaitOutsideFunction: true,
   allowImportExportEverywhere: true,
@@ -36,4 +35,4 @@ export default (sourceFileName) => ({
     'nullishCoalescingOperator',
     'logicalAssignment',
   ],
-});
+};
