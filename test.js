@@ -53,7 +53,14 @@ if ((10===b) && 4 > 3) {
 }
 
 const t = (
-	<div />
+	<div
+		a
+		b
+		d e f c={blah}
+	>
+		<span></span>
+		<div></div>
+	</div>
 );
 
 class A {}

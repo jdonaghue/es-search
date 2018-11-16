@@ -1,4 +1,4 @@
-export function reducer({ start, end, loc, range, extra, ...rest }) {
+export function reducer({ start, end, loc, range, extra, closingElement, selfClosing, ...rest }) {
   return Object.keys(rest).reduce((acc, property) => {
     if (Array.isArray(acc[property])) {
       acc[property] = acc[property].map(reducer);
