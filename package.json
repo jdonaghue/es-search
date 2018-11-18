@@ -21,7 +21,7 @@
     "babel"
   ],
   "author": "James Donaghue",
-  "license": "ISC",
+  "license": "MIT",
   "engines": {
     "node": ">=6"
   },
