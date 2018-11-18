@@ -1,5 +1,5 @@
 {
-  "name": "es-search",
+  "name": "ecma-search",
   "version": "0.2.0",
   "description": "Search ECMAScript Structurally",
   "main": "index.js",
