@@ -4,7 +4,8 @@
   "description": "Search ECMAScript Structurally",
   "main": "index.js",
   "scripts": {
-    "build": "babel src -d dist --source-maps"
+    "build": "babel src -d dist --source-maps",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "search javascript",
