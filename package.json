@@ -1,6 +1,6 @@
 {
   "name": "ecma-search",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Search ECMAScript Structurally",
   "main": "index.js",
   "scripts": {
