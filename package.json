@@ -6,11 +6,19 @@
   "scripts": {
     "build": "babel src -d dist --source-maps"
   },
-  "keywords": [],
+  "keywords": [
+    "search javascript",
+    "search ecmascript",
+    "search",
+    "ast",
+    "babel-parser",
+    "babel-traverse",
+    "babel"
+  ],
   "author": "James Donaghue",
   "license": "ISC",
   "engines": {
-    "node": ">=10.12.0"
+    "node": ">=6"
   },
   "dependencies": {
     "@babel/code-frame": "^7.0.0",
