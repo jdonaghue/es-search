@@ -2,10 +2,14 @@
   "name": "ecma-search",
   "version": "0.2.3",
   "description": "Search ECMAScript Structurally",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "babel src -d dist --source-maps",
     "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdonaghue/es-search.git"
   },
   "keywords": [
     "search javascript",
